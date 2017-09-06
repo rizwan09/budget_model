@@ -1,0 +1,182 @@
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_8.5e-05_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=8.5e-05, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01397	1.00	0.1466	0.1450	0.00	0.72	1.06	1.06	8.5e-05	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_8.5e-05_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=8.5e-05, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.02823	1.00	0.1466	0.1450	0.00	0.68	1.09	1.09	8.5e-05	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_9.5e-05_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=9.5e-05, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01270	1.00	0.1466	0.1450	0.00	0.70	1.02	1.02	9.5e-05	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_9.5e-05_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=9.5e-05, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01464	1.00	0.1466	0.1450	0.00	0.72	1.11	1.11	9.5e-05	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.0001_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.0001, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01206	1.00	0.1466	0.1450	0.00	0.72	1.10	1.10	0.0001	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.0001_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.0001, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.02903	1.00	0.1466	0.1450	0.00	0.72	1.04	1.04	0.0001	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.000105_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.000105, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01657	1.00	0.1466	0.1450	0.00	0.70	1.03	1.03	0.000105	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.000105_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.000105, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01453	1.00	0.1466	0.1450	0.00	0.73	1.09	1.09	0.000105	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00011_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00011, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01767	1.00	0.1466	0.1450	0.00	0.69	1.02	1.02	0.00011	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00011_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00011, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01455	1.00	0.1466	0.1450	0.00	0.70	1.04	1.04	0.00011	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.000115_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.000115, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01658	1.00	0.1466	0.1450	0.00	0.70	1.03	1.03	0.000115	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.000115_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.000115, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01530	1.00	0.1466	0.1450	0.00	0.69	1.01	1.01	0.000115	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00012_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00012, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01974	1.00	0.1466	0.1450	0.00	0.71	1.04	1.04	0.00012	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00012_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00012, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.02858	1.00	0.1466	0.1450	0.00	0.73	1.11	1.11	0.00012	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00016_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00016, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.03293	1.00	0.1466	0.1450	0.00	0.72	1.10	1.10	0.00016	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00016_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00016, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.02681	1.00	0.1466	0.1450	0.00	0.70	1.02	1.02	0.00016	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.0002_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.0002, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.03211	1.00	0.1466	0.1450	0.00	0.73	1.12	1.12	0.0002	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.0002_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.0002, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01705	1.00	0.1466	0.1450	0.00	0.71	1.08	1.08	0.0002	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00025_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00025, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01796	1.00	0.1466	0.1450	0.00	0.70	1.02	1.02	0.00025	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00025_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00025, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.02564	1.00	0.1466	0.1450	0.00	0.70	1.03	1.03	0.00025	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.0003_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.0003, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.02071	1.00	0.1466	0.1450	0.00	0.70	1.08	1.08	0.0003	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.0003_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.0003, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01998	1.00	0.1466	0.1450	0.00	0.70	1.02	1.02	0.0003	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00035_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00035, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01661	1.00	0.1466	0.1450	0.00	0.69	1.10	1.10	0.00035	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.00035_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.00035, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01939	1.00	0.1466	0.1450	0.00	0.71	1.11	1.11	0.00035	1.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=2.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.0004_coherent_2_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.0004, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.02034	1.00	0.1466	0.1450	0.00	0.70	1.02	1.02	0.0004	2.0	100	-1
+Namespace(activation='tanh', aspect=1, batch=256, beta1=0.9, beta2=0.999, coherent=1.0, cur_epoch=-1, debug=0, decay_lr=1, depth=2, dev='', dropout=0.1, dump='outputs_with_first_loading.json', embedding='word_vec.gz', eval_period=-1, fix_emb=1, graph_data_path='graph_data/data_vs_lamda_table.txt', hidden_dimension=200, hidden_dimension2=30, l2_reg=1e-06, layer='rcnn', learning='adam', learning_rate=0.0005, load_model='model_new_generators/model_sparsity_0.0004_coherent_1_dropout_0.1_max_epochs_100.txt.pkl.gz', load_rationale='annotations.json', max_epochs=100, max_len=256, n_genclassess=2, order=2, pooling=0, save_every=5, save_model='', seed=1111, select_all=1, sparsity=0.0004, test='', train='', trained_max_epochs=50, use_all=1)
+147759 pre-trained embeddings loaded.
+z_pred 2
+total # parameters: 321201
+total # parameters: 322805
+model loaded successfully.
+writning to file:  0.01725	1.00	0.1466	0.1450	0.00	0.70	1.03	1.03	0.0004	1.0	100	-1
