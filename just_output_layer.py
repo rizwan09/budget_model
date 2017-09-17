@@ -102,7 +102,7 @@ class Generator(object):
     
 
         # len*batch
-        probs2 = probs.reshape(x.shape)
+        probs2 = self.probs2 = probs.reshape(x.shape)
         if self.args.seed is not None: self.MRG_rng = MRG_RandomStreams(self.args.seed)
         else: self.MRG_rng = MRG_RandomStreams()
         z_pred = self.z_pred = T.cast(self.MRG_rng.binomial(size=probs2.shape, p=probs2), theano.config.floatX) #"int8")
@@ -110,6 +110,8 @@ class Generator(object):
         # we are computing approximated gradient by sampling z;
         # so should mark sampled z not part of the gradient propagation path
         #
+
+
         z_pred = self.z_pred = theano.gradient.disconnected_grad(z_pred)
         #self.sample_updates = sample_updates
         print "z_pred", z_pred.ndim
@@ -329,7 +331,7 @@ class Model(object):
             )
 
 
-    def load_model(self, path, seed = None, select_all = None): # seed and select all can differ from file
+    def load_model(self, path, seed = None, select_all = None, load_emb_only = 0): # seed and select all can differ from file
         if not os.path.exists(path):
             if path.endswith(".pkl"):
                 path += ".gz"
@@ -347,10 +349,15 @@ class Model(object):
 
         self.nclasses = nclasses
         self.ready()
+        flag = 0
         for x,v in zip(self.encoder.params, eparams):
+            # if(flag<5): 
+            #     print 'encoder param: ',v
             x.set_value(v)
-        for x,v in zip(self.generator.params, gparams):
-            x.set_value(v)
+            flag+=1
+        if(load_emb_only==0):
+            for x,v in zip(self.generator.params, gparams):
+                x.set_value(v)
 
 
     def train(self, train, dev, test, rationale_data, trained_max_epochs = None):
@@ -437,8 +444,8 @@ class Model(object):
         train_generator = theano.function(
                 inputs = [ self.x, self.y ],
                 outputs = [ self.encoder.obj, self.encoder.loss, \
-                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g ],
-                updates = updates_e.items() + updates_g.items() #+ self.generator.sample_updates,
+                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
+                updates = updates_g.items()#updates_e.items() + updates_g.items() #+ self.generator.sample_updates,
             )
 
         
@@ -487,8 +494,8 @@ class Model(object):
                     bx, by = train_batches_x[i], train_batches_y[i]
                     mask = bx != padding_id
                     start_train_time = time.time()
-                    cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g = train_generator(bx, by)
-                    #print('gl2_g: ' , gl2_g)
+                    cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2 = train_generator(bx, by)
+                    # if i == 0: print('probs2: ' , probs2, " bz: ", bz)
 
                     k = len(by)
                     processed += k
@@ -697,7 +704,7 @@ class Model(object):
                     cnt += 1
         #assert cnt == len(reviews)
         n = len(batches_x)
-
+        print('total selection: ', p1, ' total prec1: ', tot_prec1, ' total prec2: ', tot_prec2)
         prec_cal_time = time.time() - start_prec_cal_time
         return tot_mse/n, p1/n, tot_prec1/tot_n, tot_prec2/tot_z, generate_total_time, encode_total_time, prec_cal_time #, sum_y/sum_y_counts
 
@@ -776,8 +783,8 @@ def main():
                     embedding_layer = embedding_layer,
                     nclasses = len(train_y[0])
                 )
-        if args.load_model: 
-            model.load_model(args.load_model, seed = args.seed, select_all = args.select_all)
+        if args.load_model or args.load_emb_only: 
+            model.load_model(args.load_model, seed = args.seed, select_all = args.select_all, load_emb_only = args.load_emb_only)
             say("model loaded successfully.\n")
         else:
             model.ready()
@@ -804,7 +811,7 @@ def main():
                     embedding_layer = embedding_layer,
                     nclasses = -1
                 )
-        model.load_model(args.load_model, seed = args.seed, select_all = args.select_all)
+        model.load_model(args.load_model, seed = args.seed, select_all = args.select_all,  load_emb_only = args.load_emb_only)
         say("model loaded successfully.\n")
 
         sample_generator = theano.function(
