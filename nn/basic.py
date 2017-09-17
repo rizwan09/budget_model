@@ -121,124 +121,17 @@ class Layer(object):
                 b_vals = random_init((n_out,))
         self.W = create_shared(W_vals, name="W")
         if self.has_bias: self.b = create_shared(b_vals, name="b")
-        # self.t = create_shared(random_init((1,)), name="t") #threshold
 
     
     def forward(self, x):
         if self.has_bias:
             return self.activation(
                     T.dot(x, self.W) + self.b
-                ) 
-        else:
-            return self.activation(
-                    T.dot(x, self.W)
-                ) 
-    def forward2(self,x):
-        return  (self.W, self.b
                 )
-
-    def predict(self, x, p_tm1):
-        print "p_tm1", p_tm1.ndim, type(p_tm1)
-
-       
-        prob = self.forward(x)
-        
-        return prob
-
-    def forward_all(self, x):
-        p0 = T.zeros((x.shape[1], ), dtype=theano.config.floatX)
-
-        (p, updates) = theano.scan(
-                            fn = self.predict,
-                            sequences = [ x ],
-                            outputs_info = [  p0 ]
-                    )
-        
-        return  p, updates
-
-    
-
-
-    @property
-    def params(self):
-        if self.has_bias:
-            return [ self.W, self.b ]
-        else:
-            return [ self.W ]
-
-    @params.setter
-    def params(self, param_list):
-        self.W.set_value(param_list[0].get_value())
-        if self.has_bias: self.b.set_value(param_list[1].get_value())
-
-class Layer_t(object):
-    '''
-        Basic neural layer -- y = f(Wx+b)
-        foward(x) returns y
-
-        Inputs
-        ------
-
-        n_in            : input dimension
-        n_out           : output dimension
-        activation      : the non-linear activation function to apply
-        has_bias        : whether to include the bias term b in the computation
-
-
-    '''
-    def __init__(self, n_in, n_out, activation,
-                            clip_gradients=False,
-                            has_bias=True):
-        self.n_in = n_in
-        self.n_out = n_out
-        self.activation = activation
-        self.clip_gradients = clip_gradients
-        self.has_bias = has_bias
-
-        self.create_parameters()
-
-        # not implemented yet
-        if clip_gradients is True:
-            raise Exception("gradient clip not implemented")
-
-    def create_parameters(self):
-        n_in, n_out, activation = self.n_in, self.n_out, self.activation
-        self.initialize_params(n_in, n_out, activation)
-
-    def initialize_params(self, n_in, n_out, activation):
-        if USE_XAVIER_INIT:
-            if activation == ReLU:
-                scale = np.sqrt(4.0/(n_in+n_out), dtype=theano.config.floatX)
-                b_vals = np.ones(n_out, dtype=theano.config.floatX) * 0.01
-            elif activation == softmax:
-                scale = np.float64(0.001).astype(theano.config.floatX)
-                b_vals = np.zeros(n_out, dtype=theano.config.floatX)
-            else:
-                scale = np.sqrt(2.0/(n_in+n_out), dtype=theano.config.floatX)
-                b_vals = np.zeros(n_out, dtype=theano.config.floatX)
-            W_vals = random_init((n_in,n_out), rng_type="normal") * scale
-        else:
-            W_vals = random_init((n_in,n_out))
-            if activation == softmax:
-                W_vals *= 0.001
-            if activation == ReLU:
-                b_vals = np.ones(n_out, dtype=theano.config.floatX) * 0.01
-            else:
-                b_vals = random_init((n_out,))
-        self.W = create_shared(W_vals, name="W")
-        if self.has_bias: self.b = create_shared(b_vals, name="b")
-        self.t = create_shared(0.5, name="t") #threshold
-
-    
-    def forward(self, x):
-        if self.has_bias:
-            return T.cast(self.activation(
-                    T.dot(x, self.W) + self.b
-                ) > self.t , theano.config.floatX ), self.t
         else:
             return self.activation(
                     T.dot(x, self.W)
-                ) 
+                )
     def forward2(self,x):
         return  (self.W, self.b
                 )
