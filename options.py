@@ -166,6 +166,10 @@ def load_arguments():
             type = int,
             default = 0
         )
+    argparser.add_argument("--load_emb_only",
+            type = int,
+            default = 0
+        )
 
     argparser.add_argument("--graph_data_path",
             type = str,

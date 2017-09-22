@@ -16,7 +16,7 @@ debug = 1
 select_all = -1
 output_file = 'rough2_new_gen_outputs_'+"linear_rcnn_0.01"+'.json'
 covered_percentage = []
-graph_data_file = 'graph_data/data_vs_lamda_table_dummy.txt'
+graph_data_file = '../graph_data/data_vs_lamda_table_dummy.txt'
 open(graph_data_file, 'w')
 
 types = ['JUST_OUTPUT_LAYER', 'LINEAR_RCNN', 'RCNN_RCNN', 'just_output_layer', 'linear_rcnn']
@@ -45,7 +45,7 @@ for l_1 in lamda_1:
 			# 	' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "MODELS/"+model_file +' --load_model '+ load_model_file + ' --load_emb_only '+ str(load_emb_only)
 			
 			# RAGN = Reinforcment Adam generator
-			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python just_output_layer_RAGEN.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) + ' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
+			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python just_output_layer_RAGEN.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) + ' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
 				' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "MODELS/"+model_file #+' --learning '+learning #+' --load_model '+ load_model_file + ' --load_emb_only '+ str(load_emb_only)
 			
 			
