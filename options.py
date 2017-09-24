@@ -173,7 +173,7 @@ def load_arguments():
 
     argparser.add_argument("--graph_data_path",
             type = str,
-            default = 'graph_data/data_vs_lamda_table.txt'
+            default = '../graph_data/data_vs_lamda_table.txt'
         )
     argparser.add_argument('--seed', type=int, default=1111,
                         help='random seed for reproducibility')

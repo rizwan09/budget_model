@@ -441,11 +441,17 @@ class Model(object):
                 #updates = self.generator.sample_updates
             )
 
-        train_generator = theano.function(
+        train_generator_g = theano.function(
                 inputs = [ self.x, self.y ],
                 outputs = [ self.encoder.obj, self.encoder.loss, \
                                 self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
                 updates = updates_g.items()#updates_e.items() + updates_g.items() #+ self.generator.sample_updates,
+            )
+        train_generator_e = theano.function(
+                inputs = [ self.x, self.y ],
+                outputs = [ self.encoder.obj, self.encoder.loss, \
+                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
+                updates = updates_e.items() #+ updates_g.items() #+ self.generator.sample_updates,
             )
 
         
@@ -494,7 +500,10 @@ class Model(object):
                     bx, by = train_batches_x[i], train_batches_y[i]
                     mask = bx != padding_id
                     start_train_time = time.time()
-                    cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2 = train_generator(bx, by)
+                    # cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2 = train_generator(bx, by)
+                    if(epoch_%2==0): cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2 = train_generator_g(bx, by)
+                    else: cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2 = train_generator_e(bx, by) 
+
                     # if i == 0: print('probs2: ' , probs2, " bz: ", bz)
 
                     k = len(by)
@@ -642,7 +651,7 @@ class Model(object):
         p1, tot_mse, tot_prec1, tot_prec2 = 0.0, 0.0, 0.0, 0.0
         tot_z, tot_n = 1e-10, 1e-10
         cnt = 0
-
+        cnt_t = 0
         start_prec_cal_time = time.time()
         encode_total_time = 0
         generate_total_time = 0
@@ -660,7 +669,13 @@ class Model(object):
 
             #print 'bx[0]: ', bx[0], len (bx[0]), '\nbz[0]: ' , bz[0], len (bz[0])
             #print 'bx[60]: ', bx[60], len (bx[60]), '\nbz[60]: ' , bz[60], len (bz[60])
-            #exit()
+
+            # bz = np.zeros_like(bx, dtype=theano.config.floatX)
+            # bz_T = bz.T
+            # for z,m in zip(bz_T, mask.T):
+            #     print z,m
+            #     exit()
+            # bz = bz_T.T
 
             start_encode_time = time.time()
             bx_t = np.array(remove_non_selcted(bx, bz,  padding_id)).astype(np.int32) #bx_t has only the words those are selected by the generator
