@@ -5,9 +5,10 @@ import os
 #lamda_1 = [0.0002, 0.00025, 0.0003, 0.00035, 0.0004, 0.0005, 0.00001, 0.00005, 0.00009, 00012, 0.00016, 0.000005]
 
 lamda_1 = [0.000085, 0.000095, 0.0001, 0.000105,  0.00011, 0.000115,  0.00012,  0.00016, 0.0002, 0.00025, 0.0003, 0.00035, 0.0004 ]# 0.000085, 0.000095, 0.0001, 0.00016, 0.00025, 0.0004
-lamda_1 = [0.0004]#, 0.0003, 0.00035, 0.0002, 0.00025, 0.00016, 0.00012, 0.000115, 0.00011, 0.000105, 0.0001]# 0.000085, 0.000095, 0.0001, 0.00016, 0.00025, 0.0004
-
+# lamda_1 = [0.0004]#, 0.0003, 0.00035, 0.0002, 0.00025, 0.00016, 0.00012, 0.000115, 0.00011, 0.000105, 0.0001]# 0.000085, 0.000095, 0.0001, 0.00016, 0.00025, 0.0004
+lamda_1 = [0.00007, 0.00006, 0.00005, 0.000065, 000075]
 lamda_2 = [  2, 1, 0.1, 0.4, 0.5]
+lamda_2 = [  0.1]
 dp = 0.1
 learning_rate = [0.01]
 max_epochs = 100
@@ -33,7 +34,7 @@ for l_1 in lamda_1:
 					#print 'not exist: ', model_file
 				if(path == 'RCNN_RCNN'): py_file = 'gen_enc'
 				else: py_file= path.lower()
-				run_command = 'THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python '+py_file+'_RAGEN.py --embedding ../word_vec.gz --load_rationale ../annotations.json --dump ../outputs_with_first_loading.json --select_all ' +str(select_all)+ ' --aspect ' +str(aspect) +' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --load_model ' + load_model_file  + ' --graph_data_path '+ graph_data_file 
+				run_command = 'THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python '+py_file+'_RAGEN.py --embedding ../word_vec.gz --load_rationale ../annotations.json --dump ../outputs_with_first_loading.json --select_all ' +str(select_all)+ ' --aspect ' +str(aspect) +' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --load_model ' + load_model_file  + ' --graph_data_path '+ graph_data_file + ' --learning_rate '+ str(lr) 
 				print run_command
 				#run_command+=' >> '+ 'graph_data/'+ 'full_enc.txt' 
 				os.system(run_command)
