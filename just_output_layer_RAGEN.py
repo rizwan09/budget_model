@@ -444,13 +444,13 @@ class Model(object):
         train_generator_g = theano.function(
                 inputs = [ self.x, self.y ],
                 outputs = [ self.encoder.obj, self.encoder.loss, \
-                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
+                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_g],
                 updates = updates_g.items()#updates_e.items() + updates_g.items() #+ self.generator.sample_updates,
             )
         train_generator_e = theano.function(
                 inputs = [ self.x, self.y ],
                 outputs = [ self.encoder.obj, self.encoder.loss, \
-                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
+                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e],
                 updates = updates_e.items() #+ updates_g.items() #+ self.generator.sample_updates,
             )
 
@@ -465,11 +465,11 @@ class Model(object):
         tolerance = 0.10 + 1e-3
         dropout_prob = np.float64(args.dropout).astype(theano.config.floatX)
 
-        for epoch_ in xrange(args.max_epochs - 50): # -50 when max_epochs  = 100 given
+        for epoch_ in xrange(args.max_epochs ): # -50 when max_epochs  = 100 given
             #print(" max epochs in train func: ", args.max_epochs)
             epoch = args.trained_max_epochs + epoch_
             unchanged += 1
-            if unchanged > 25: 
+            if unchanged > 20: 
                 print 'dev set increases more than 25 times after the best dev found'
                 #return
 
@@ -501,8 +501,8 @@ class Model(object):
                     mask = bx != padding_id
                     start_train_time = time.time()
                     # cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2 = train_generator(bx, by)
-                    if(epoch_%2==0): cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2 = train_generator_g(bx, by)
-                    else: cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2 = train_generator_e(bx, by) 
+                    if(epoch_%2==0): cost, loss, sparsity_cost, bz, emb, gl2_g = train_generator_g(bx, by)
+                    else: cost, loss, sparsity_cost, bz, emb, gl2_e = train_generator_e(bx, by) 
 
                     # if i == 0: print('probs2: ' , probs2, " bz: ", bz)
 
@@ -556,6 +556,10 @@ class Model(object):
                 if dev: last_dev_avg_cost = cur_dev_avg_cost
 
                 say("\n")
+                a = 0
+                b = 0
+                if(epoch_%2==0): a = float(gl2_g)
+                else: b = float(gl2_e)
                 say(("Generator Epoch {:.2f}  costg={:.4f}  scost={:.4f}  lossg={:.4f}  " +
                     "p[1]={:.2f}  |g|={:.4f} {:.4f}\t[{:.2f}m / {:.2f}m]\n").format(
                         epoch+(i+1.0)/N,
@@ -563,8 +567,7 @@ class Model(object):
                         train_sparsity_cost / N,
                         train_loss / N,
                         p1 / N,
-                        float(gl2_e),
-                        float(gl2_g),
+                        a,b,
                         (time.time()-start_time)/60.0,
                         (time.time()-start_time)/60.0/(i+1)*N
                     ))

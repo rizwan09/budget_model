@@ -180,7 +180,7 @@ def load_arguments():
 
     argparser.add_argument('--debug', type=float, default=0,
                         help='small train set to debug')
-    argparser.add_argument('--select_all', type=int, default=-1,
+    argparser.add_argument('--select_all', type=float, default=-1,
                         help='percentage of selection or -1')
     argparser.add_argument('--cur_epoch', type=int, default=-1,
                         help='epoch no of the trained model')
