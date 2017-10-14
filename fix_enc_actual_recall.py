@@ -19,10 +19,13 @@ import options
 from extended_layers import ExtRCNN, ExtLSTM, ZLayer, LZLayer
 from nltk.corpus import stopwords
 
-stopWords = list(stopwords.words('english'))+[',', '"', ';', '.', "'s", '(', ')', '-']
+stopWords = [  w.encode('utf-8') for w in list(stopwords.words('english'))+[',', '"', ';', '.', "'s", '(', ')', '-']   ]
+# print stopWords
 np.random.seed(seed=1111)
 total_encode_time = 0
 total_generate_time = 0
+
+
 
 def get_sparse(o_x):
     a = np.nonzero(o_x)
@@ -797,7 +800,9 @@ class Model(object):
         cnt = 0
         cnt_t = 0
         cnt_c = 0
+        appended_rationales = 0
         actual_rationales = 0
+        actual_prec = 0
         start_prec_cal_time = time.time()
         encode_total_time = 0
         generate_total_time = 0
@@ -836,28 +841,38 @@ class Model(object):
                     not_selected_rationals = [reviews[cnt_c]["x"][i] for i, zi in enumerate(z) if zi==0 and \
                                 any(i>=u[0] and i<u[1] for u in truez_intvals)]
 
-                    # if(len(not_selected_rationals)!=0): print("not selected words 1st: ",not_selected_rationals)
+                    # if(len(not_selected_rationals)!=0): print("not selected words 1st: ",not_selected_rationals, len(not_selected_rationals))
 
                     # print('------------- truez_intvals -------------- ', truez_intvals)
                     for u in truez_intvals:
                         # print 'line: ', id_,' true interval: ', u, ' len(z): ', len(z)
                         for oi in range(u[0], u[1]):
                             w = reviews[cnt_c]["x"][oi].encode('utf-8')
-                            if(w not in stopWords): actual_rationales+=1
+                            # print 'word: ', w
+                            if(w not in stopWords): 
+                                actual_rationales+=1
+                            # print actual_rationales
                             # print('oi: ', oi, reviews[cnt_c]["x"][oi], z[oi])
                             if z[oi]==0:
                                 # print ('not selected: ', reviews[cnt_c]["x"][oi])
-                                
-                                print ' not selected w: ', w
-                                if(w in stopWords):
-                                    # print 'bz_t[id_][pad+oi] was: ',bz_t[id_][pad+oi]
-                                    bz_t[id_][pad+oi] = 0
+                                # w = reviews[cnt_c]["x"][oi].encode('ascii')
+                                # print ' not selected w: ', w
+                                # if(w in stopWords):
+                                #     # print 'bz_t[id_][pad+oi] was: ',bz_t[id_][pad+oi]
+                                #     bz_t[id_][pad+oi] = 0
                                     # print 'found'
-                                else: 
-                                    print (np.random.random_sample())
+                                # else: 
+                                if(w  in stopWords):
+                                    # print (np.random.random_sample())
                                     if(np.random.random_sample()<args.select_all):
                                         bz_t[id_][pad+oi] = 1
+                                        appended_rationales+=1
                                     # print 'not found'
+                    not_selected_rationals = [reviews[cnt_c]["x"][i] for i, zi in enumerate(z) if zi==0 and \
+                                any(i>=u[0] and i<u[1] for u in truez_intvals)]
+
+                    # if(len(not_selected_rationals)!=0): print("not selected words 2nd: ",not_selected_rationals, len(not_selected_rationals))
+
 
                     id_+=1
                     cnt_c+=1
@@ -933,13 +948,13 @@ class Model(object):
                     prec = sum( 1 for i, zi in enumerate(z) if zi>0 and \
                                 any(i>=u[0] and i<u[1] for u in truez_intvals) )
 
-                    actual_prec = sum( 1 for i, zi in enumerate(z) if zi>0 and reviews[cnt]["x"][i].encode('utf-8') not in stopWords and \
+                    actual_prec += sum( 1 for i, zi in enumerate(z) if zi>0 and reviews[cnt]["x"][i].encode('utf-8') not in stopWords and \
                                 any(i>=u[0] and i<u[1] for u in truez_intvals) )
 
-                    not_selected_rationals = [reviews[cnt]["x"][i] for i, zi in enumerate(z) if zi==0 and \
+                    not_selected_rationals = [reviews[cnt]["x"][i].encode('utf-8') for i, zi in enumerate(z) if zi==0 and \
                                 any(i>=u[0] and i<u[1] for u in truez_intvals)]
 
-                    # if(len(not_selected_rationals)!=0): print("not selected words 2nd: ",not_selected_rationals)
+                    # if(len(not_selected_rationals)!=0): print("not selected words in calc: ",not_selected_rationals, len(not_selected_rationals))
                     ntz = sum( u[1] - u[0] for u in truez_intvals) 
                     nz = sum(z)
                     if ntz>0:
@@ -955,9 +970,10 @@ class Model(object):
                     cnt += 1
         #assert cnt == len(reviews)
         n = len(batches_x)
-        print('total selection: ', p1, ' total prec1: ', tot_prec1, ' total prec2: ', tot_prec2, ' recall: ' , tot_rec1/tot_tn , ' actual recall: ', str(actual_prec)+'/'+str(actual_rationales))
+        a_r = actual_prec/(actual_rationales +0.0)
+        print('total selection: ', p1, ' total prec1: ', tot_prec1, ' total prec2: ', tot_prec2, ' recall: ' , tot_rec1/tot_tn , ' appended rationales: ', appended_rationales,' actual recall: ', str(actual_prec)+'/'+str(actual_rationales), a_r, )
         prec_cal_time = time.time() - start_prec_cal_time
-        return tot_mse/n, p1/n, tot_prec1/tot_n, tot_prec2/tot_z, generate_total_time, encode_total_time, prec_cal_time, tot_rec1/tot_tn, actual_prec/actual_rationales  #, sum_y/sum_y_counts
+        return tot_mse/n, p1/n, tot_prec1/tot_n, tot_prec2/tot_z, generate_total_time, encode_total_time, prec_cal_time, tot_rec1/tot_tn, a_r #, sum_y/sum_y_counts
 
     def dump_rationales(self, path, batches_x, batches_y, eval_func, sample_func):
         embedding_layer = self.embedding_layer

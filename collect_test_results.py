@@ -21,8 +21,8 @@ graph_data_file = 'graph_data/'
 # for ext in range(0, 100, 5):
 # lamda_1 = [0.00025]
 # lamda_2 = [1]
-select_all_array = [0.95, 0.96, 0.945, 0.955, 0.965, 0.948, 0.958, 0.962, 0.953 ]
-# select_all_array = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+# select_all_array = [0.97, 1.00]#[0.95, 0.96, 0.945, 0.955, 0.965, 0.948, 0.958, 0.962, 0.953 ]
+select_all_array = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, .97, 1.00]
 # select_all_array = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
 _type = '../JUST_OUTPUT_LAYER/FIX_ENC_TRAIN_RCNN_GEN2/'
@@ -60,6 +60,7 @@ for l_1 in lamda_1:
 					# run_command+=' >> '+ 'graph_data/'+ 'NOT_SELECTED_RACTIONALS'+'.txt' 
 					os.system(run_command)
 					print '\n\n\n '
+					# exit()
 				exit()
 
 #now on nlp 13807
