@@ -1,1 +1,1 @@
-1. Conflict Id: 1, gen: rcnn (modified by me), enc: rcnn, trainable: both, initialize: rand, [special run setting: (lamda1, lamda2):: (0.0003, 0.8), (0.0001, 0.5)(0.00012, 1.0)]
+1. Conflict Id: 1, gen: rcnn (modified by me), enc: rcnn, trainable: both, initialize: rand, [special run setting: (lamda1, lamda2):: (0.0003, 0.8), (0.0001, 0.5)(0.00012, 1.0)] script: run_conflict1.py, code: conflict1.py
