@@ -130,19 +130,23 @@ def main():
                 slngth = end - begin
                 if(slngth<1): break
                 ratnlngth = 1e-5
-                for u in truez_intvals:
-                    r_b = u[0]
-                    r_e = u[1]
-                    if(u[0]>= begin or u[1]<=end):
-                        if(u[0]<begin): r_b = begin
-                        if(u[1]>end): r_e = end
-                        diff = r_e - r_b
-                        # print r_b, r_e
-                        if(diff>0):ratnlngth += diff
-                # print ('ratnlngth/slngth: ', ratnlngth/slngth)
-                if(ratnlngth/slngth < args.p):
-                    # print ratnlngth, slngth, ratnlngth/slngth, begin, end
-                    rationale_data[i]['x'][begin:end] = ["<padding>" for j in range(begin,end+1)]
+                if(args.p>0):
+                    for u in truez_intvals:
+                        r_b = u[0]
+                        r_e = u[1]
+                        if(u[0]>= begin or u[1]<=end):
+                            if(u[0]<begin): r_b = begin
+                            if(u[1]>end): r_e = end+1
+                            diff = r_e - r_b
+                            # print r_b, r_e
+                            if(diff>0):ratnlngth += diff
+                    # print ('ratnlngth/slngth: ', ratnlngth/slngth)
+                    if(ratnlngth/slngth < args.p):
+                        # print ratnlngth, slngth, ratnlngth/slngth, begin, end
+                        rationale_data[i]['x'][begin:end] = ["<unk>" for j in range(begin,end+1)]
+                else:
+                    if(any(begin>=u[0] or end<=u[1] for u in truez_intvals) == False):
+                        rationale_data[i]['x'][begin:end] = ["<unk>" for j in range(begin,end+1)]
                 begin = end+1
                 
             
@@ -155,15 +159,17 @@ def main():
             # break
 
 
-        file = '../annotations'+str(args.p)+'.json'
+        file = 'annotations'+str(args.p)+'.json'
         with open(file, 'w') as outfile:
-            json.dump(rationale_data, outfile)
+            for i, x in enumerate(rationale_data):
+                print x
+                outfile.write(json.dumps(x)+"\n")
 
 
-        rationale_data_new = myio.read_rationales(file)
-        for i, x in enumerate(rationale_data_new):
-            print x
-            # break
+        # rationale_data_new = myio.read_rationales(file)
+        # for i, x in enumerate(rationale_data_new):
+        #     print x
+        #     break
 
         # with open('../annotations'+str(args.p)+'.json',"w") as fout:
         #     fout.write( json.dumps(rationale_data))
