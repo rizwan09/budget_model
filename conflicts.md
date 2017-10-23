@@ -8,4 +8,4 @@ Conflict Id: 3, gen: rcnn (modified by me), enc: rcnn, trainable: only enc (gen 
 
 
 
-Conflict Id: 4, gen: rcnn (but sentence level), enc = rcnn trainable: only geneartor (enc fixed  [full_enc file](https://github.com/rizwan09/budget_model/blob/dev/model_sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005_max_epochs_100.txt.pkl.gz) )
+Conflict Id: 4, gen: rcnn (but sentence level), enc = rcnn trainable: only geneartor (enc fixed  [full_enc file](https://github.com/rizwan09/budget_model/blob/dev/model_sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005_max_epochs_100.txt.pkl.gz) )script: run_conflict4.py, code: conflict4.py
