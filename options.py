@@ -171,6 +171,16 @@ def load_arguments():
             default = 0
         )
 
+    argparser.add_argument("--load_gen_only",
+            type = int,
+            default = 0
+        )
+
+    argparser.add_argument("--p",
+            type = float,
+            default = 0
+        )
+
     argparser.add_argument("--graph_data_path",
             type = str,
             default = '../graph_data/data_vs_lamda_table.txt'

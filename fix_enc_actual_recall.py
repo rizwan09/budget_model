@@ -849,7 +849,7 @@ class Model(object):
                         for oi in range(u[0], u[1]):
                             w = reviews[cnt_c]["x"][oi].encode('utf-8')
                             # print 'word: ', w
-                            if(w not in stopWords): 
+                            if(w  in stopWords):  #not in
                                 actual_rationales+=1
                             # print actual_rationales
                             # print('oi: ', oi, reviews[cnt_c]["x"][oi], z[oi])
@@ -862,7 +862,8 @@ class Model(object):
                                 #     bz_t[id_][pad+oi] = 0
                                     # print 'found'
                                 # else: 
-                                if(w  in stopWords):
+                                bz_t[id_][pad+oi] = 1
+                                if(w  in stopWords): #not in
                                     # print (np.random.random_sample())
                                     if(np.random.random_sample()<args.select_all):
                                         bz_t[id_][pad+oi] = 1
@@ -948,8 +949,8 @@ class Model(object):
                     prec = sum( 1 for i, zi in enumerate(z) if zi>0 and \
                                 any(i>=u[0] and i<u[1] for u in truez_intvals) )
 
-                    actual_prec += sum( 1 for i, zi in enumerate(z) if zi>0 and reviews[cnt]["x"][i].encode('utf-8') not in stopWords and \
-                                any(i>=u[0] and i<u[1] for u in truez_intvals) )
+                    actual_prec += sum( 1 for i, zi in enumerate(z) if zi>0 and reviews[cnt]["x"][i].encode('utf-8')  in stopWords and \
+                                any(i>=u[0] and i<u[1] for u in truez_intvals) ) # not in 
 
                     not_selected_rationals = [reviews[cnt]["x"][i].encode('utf-8') for i, zi in enumerate(z) if zi==0 and \
                                 any(i>=u[0] and i<u[1] for u in truez_intvals)]
