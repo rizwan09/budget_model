@@ -12,6 +12,8 @@ Conflict Id: 4, gen: rcnn (but sentence level), enc = rcnn trainable: only genea
 
 
 Conflict5: genearte a test corpus where senetences are removed if the gold rationales in that sentence is lower than p
-run: python conflict5.py --load_rationale ../annotations.json --embedding ../word_vec.gz --aspect 1 --p 0.2 (min gold rationale length /sentence length)
+run: python conflict5.py --load_rationale ../annotations.json --embedding ../word_vec.gz --aspect 1 --p 0.2 (min gold rationale length /sentence length) (also run_conflict6 has this line]
 
-conflict6: run full enc on annotations0.1, annotations0.2 etc and record the performance. 
+Conflict6: run full enc on annotations0.1, annotations0.2 etc and record the performance. 
+
+Conflict7: Train full enc on a corpus of originals + blank out (santy check with sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005)
