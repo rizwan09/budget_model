@@ -570,7 +570,7 @@ class Model(object):
         sample_encoder = theano.function(
                 inputs = [ self.x, self.y, self.z],
                 outputs = [ self.encoder.obj, self.encoder.loss,
-                                self.encoder.pred_diff],
+                                self.encoder.pred_diff, self.encoder.preds],
                 # updates = self.generator.sample_updates
             )
 
@@ -802,11 +802,12 @@ class Model(object):
         cnt_t = 0
         cnt_c = 0
         appended_rationales = 0
-        actual_rationales = 0
+        actual_rationales = 9725
         actual_prec = 0
         start_prec_cal_time = time.time()
         encode_total_time = 0
         generate_total_time = 0
+        rank_error =  match_error = 0
         for bx, by in zip(batches_x, batches_y):
             mask = bx != padding_id 
             
@@ -820,35 +821,35 @@ class Model(object):
             generator_time = time.time() - start_generate_time
             generate_total_time += generator_time
 
-            if args.aspect >= 0:
-                # print('--'*250)
-                # print ('should print: ', len(bz_t))
-                # print('--'*250)
-                id_ = 0
-                for z,m in zip(bz.T, mask.T):
-                    pad = len(z) - sum(m)
-                    z = [ vz for vz,vm in zip(z,m) if vm ]
-                    assert len(z) == len(reviews[cnt_c]["xids"])
-                    # print('valid: ' , len(z),' pad', pad, ' total: ', len(m))
-                    assert len(z) == len(m) - pad #len(m) is actullay same as len(old_z)
+            # if args.aspect >= 0:
+            #     # print('--'*250)
+            #     # print ('should print: ', len(bz_t))
+            #     # print('--'*250)
+            #     id_ = 0
+            #     for z,m in zip(bz.T, mask.T):
+            #         pad = len(z) - sum(m)
+            #         z = [ vz for vz,vm in zip(z,m) if vm ]
+            #         assert len(z) == len(reviews[cnt_c]["xids"])
+            #         # print('valid: ' , len(z),' pad', pad, ' total: ', len(m))
+            #         assert len(z) == len(m) - pad #len(m) is actullay same as len(old_z)
                    
-                    truez_intvals = reviews[cnt_c][aspect]
-                    # print('truez_intvals: ', truez_intvals)
-                    not_selected_rationals = [reviews[cnt_c]["x"][i] for i, zi in enumerate(z) if zi==0 and \
-                                any(i>=u[0] and i<u[1] for u in truez_intvals)]
+            #         truez_intvals = reviews[cnt_c][aspect]
+            #         # print('truez_intvals: ', truez_intvals)
+            #         not_selected_rationals = [reviews[cnt_c]["x"][i] for i, zi in enumerate(z) if zi==0 and \
+            #                     any(i>=u[0] and i<u[1] for u in truez_intvals)]
 
-                    # if(len(not_selected_rationals)!=0): print("not selected words 1st: ",not_selected_rationals, len(not_selected_rationals))
+            #         # if(len(not_selected_rationals)!=0): print("not selected words 1st: ",not_selected_rationals, len(not_selected_rationals))
 
-                    # print('------------- truez_intvals -------------- ', truez_intvals)
-                    for u in truez_intvals:
-                        # print 'line: ', id_,' true interval: ', u, ' len(z): ', len(z)
-                        for oi in range(u[0], u[1]):
-                            w = reviews[cnt_c]["x"][oi].encode('utf-8')
-                            # print 'word: ', w
-                            if(w not in stopWords):  #not in
-                                actual_rationales+=1
-                    id_+=1
-                    cnt_c+=1
+            #         # print('------------- truez_intvals -------------- ', truez_intvals)
+            #         for u in truez_intvals:
+            #             # print 'line: ', id_,' true interval: ', u, ' len(z): ', len(z)
+            #             for oi in range(u[0], u[1]):
+            #                 w = reviews[cnt_c]["x"][oi].encode('utf-8')
+            #                 # print 'word: ', w
+            #                 if(w not in stopWords):  #not in
+            #                     actual_rationales+=1
+            #         id_+=1
+            #         cnt_c+=1
                             
             
 
@@ -860,7 +861,21 @@ class Model(object):
 
 
             #o, e, d = debug_func_enc(bx, by, bz) # o, e, d = debug_func_enc(bx, by, bz)
-            o, e, d = debug_func_enc(bx_t, by, bz_t)
+            o, e, d, p = debug_func_enc(bx_t, by, bz_t)
+
+            y_pred = np.round(10*p) 
+            y_gold = 10 * by 
+            y_pred = y_pred[:,args.aspect]
+            y_gold = y_gold[:,args.aspect]
+
+            r_e = np.absolute(y_gold - y_pred).sum()
+            m_e = (y_gold!=y_pred).sum() 
+            rank_error += r_e
+            match_error += m_e
+
+            print 'gold: ', y_gold, "\n p: ", p, " y pred: ", y_pred, " rank error: ", r_e, ' match error: ', m_e
+
+
             encoder_time = time.time() - start_encode_time
             encode_total_time += encoder_time
             
@@ -900,9 +915,11 @@ class Model(object):
         #assert cnt == len(reviews)
         n = len(batches_x)
         a_r = actual_prec/(actual_rationales +0.0)
-        print('total selection: ', p1, "/", n, ' total prec1: ', tot_prec1, ' total prec2: ', tot_prec2, ' recall: ' , tot_rec1/tot_tn , ' appended rationales: ', appended_rationales,' actual recall: ', str(actual_prec)+'/'+str(actual_rationales), a_r, )
+        print('total selection: ', p1, "/", n, ' total prec1: ', tot_prec1, ' total prec2: ', tot_prec2, ' recall: ' , tot_rec1/tot_tn , \
+            ' appended rationales: ', appended_rationales,' actual recall: ', str(actual_prec)+'/'+str(actual_rationales), a_r, \
+            ' match error: ', match_error, ' rank error: ', rank_error)
         prec_cal_time = time.time() - start_prec_cal_time
-        return tot_mse/n, p1/n, tot_prec1/tot_n, tot_prec2/tot_z, generate_total_time, encode_total_time, prec_cal_time, tot_rec1/tot_tn, a_r #, sum_y/sum_y_counts
+        return tot_mse/n, p1/n, tot_prec1/tot_n, tot_prec2/tot_z, generate_total_time, encode_total_time, prec_cal_time, tot_rec1/tot_tn, a_r, match_error, rank_error #, sum_y/sum_y_counts
 
     def dump_rationales(self, path, batches_x, batches_y, eval_func, sample_func):
         embedding_layer = self.embedding_layer
@@ -1020,7 +1037,7 @@ def main():
         sample_encoder = theano.function(
                 inputs = [ model.x, model.y, model.z],
                 outputs = [ model.encoder.obj, model.encoder.loss,
-                                model.encoder.pred_diff],
+                                model.encoder.pred_diff, model.encoder.preds],
                 # updates = model.generator.sample_updates
             )
         # compile an evaluation function
@@ -1067,7 +1084,7 @@ def main():
         if rationale_data is not None:
             #model.dropout.set_value(0.0)
             start_rational_time = time.time()
-            r_mse, r_p1, r_prec1, r_prec2, gen_time, enc_time, prec_cal_time, recall, actual_recall = model.evaluate_rationale(
+            r_mse, r_p1, r_prec1, r_prec2, gen_time, enc_time, prec_cal_time, recall, actual_recall, me, re = model.evaluate_rationale(
                     rationale_data, valid_batches_x,
                     valid_batches_y, sample_generator, sample_encoder, eval_func)
                     #valid_batches_y, eval_func)
@@ -1084,7 +1101,8 @@ def main():
             #        time.time() - start_rational_time
             #))
 
-            data = str('%.5f' % r_mse) + "\t" + str('%4.2f' %r_p1) + "\t" + str('%4.4f' %r_prec1) + "\t" + str('%4.4f' %r_prec2) +"\t"+str(recall)+"\t"+str(actual_recall)+"\t"+str(recall*r_prec1)+"\t" + str('%4.2f' %gen_time) + "\t" + str('%4.2f' %enc_time) + "\t" +  str('%4.2f' %prec_cal_time) + "\t" +str('%4.2f' % (time.time() - start_rational_time)) +"\t" + str(args.sparsity) + "\t" + str(args.coherent) + "\t" +str(args.max_epochs) +"\t"+str(args.cur_epoch) 
+            data = str('%.5f' % r_mse) + "\t" + str('%4.2f' %r_p1) + "\t" + str('%4.4f' %r_prec1) + "\t" + str('%4.4f' %r_prec2) +"\t"+str(recall)+"\t"+str(actual_recall)+"\t"+str(recall*r_prec1)+"\t" + str('%4.2f' %gen_time) + "\t" + str('%4.2f' %enc_time) + "\t" +  str('%4.2f' %prec_cal_time) + "\t" +str('%4.2f' % (time.time() - start_rational_time)) +"\t" \
+            + str(args.sparsity) + "\t" + str(args.coherent) + "\t" +str(args.max_epochs) +"\t"+str(args.cur_epoch)+ "\t"+str(me)+ "\t"+str(re)
      
             
             with open(args.graph_data_path, 'a') as g_f:

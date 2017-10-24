@@ -124,29 +124,42 @@ def main():
             # idx = [0] + [ j for j, w in enumerate(x["x"]) if w in string.punctuation ]
             idx = [ j for j, w in enumerate(x["x"]) if w in '.' ] + [len(x['x']) - 1]
             # print len(x['x']), idx[-1]
+            # print ' in conflict 5'
             begin = 0
             for end in idx:
                 # print ' now begin: ', begin, ' end: ', end
                 slngth = end - begin
                 if(slngth<1): break
                 ratnlngth = 1e-5
-                if(args.p>0):
-                    for u in truez_intvals:
-                        r_b = u[0]
-                        r_e = u[1]
-                        if(u[0]>= begin or u[1]<=end):
-                            if(u[0]<begin): r_b = begin
-                            if(u[1]>end): r_e = end+1
-                            diff = r_e - r_b
-                            # print r_b, r_e
-                            if(diff>0):ratnlngth += diff
-                    # print ('ratnlngth/slngth: ', ratnlngth/slngth)
-                    if(ratnlngth/slngth < args.p):
-                        # print ratnlngth, slngth, ratnlngth/slngth, begin, end
-                        rationale_data[i]['x'][begin:end] = ["<unk>" for j in range(begin,end+1)]
-                else:
-                    if(any(begin>=u[0] or end<=u[1] for u in truez_intvals) == False):
-                        rationale_data[i]['x'][begin:end] = ["<unk>" for j in range(begin,end+1)]
+                # if(args.p>0):
+                for u in truez_intvals:
+                    r_b = u[0]
+                    r_e = u[1] - 1
+                    
+                    if(u[0]<begin): r_b = begin
+                    if(u[1] - 1 >end): r_e = end
+                    diff = r_e - r_b + 1
+                        # print r_b, r_e
+                    if(diff>0):ratnlngth += diff
+
+                if(  any (end>=u[0] for u in truez_intvals) == False) :
+                    assert ratnlngth == 1e-5
+                elif(  any (begin<u[1]  for u in truez_intvals) == False ):
+                    assert ratnlngth == 1e-5
+
+                # if(any(begin>=u[0] or end<=u[1] for u in truez_intvals) == True and ratnlngth==1e-5):
+                #     print begin, end, truez_intvals, ratnlngth
+                # print ' begin: ', begin, ' end: ', end, " true: ", truez_intvals, ' ratnlngth: ', ratnlngth, ' p: ', args.p
+                    
+                if(ratnlngth<args.p and args.p >= 1):
+                    print ' begin: ', begin, ' end: ', end, " true: ", truez_intvals, ' is not being selected as ratnlngth: ', ratnlngth, ' p: ', args.p
+                    rationale_data[i]['x'][begin:end] = ['<unk>' for j in range(begin, end+1) ]
+                elif(ratnlngth/slngth<args.p and args.p<1.0):
+                    rationale_data[i]['x'][begin:end] = ['<unk>' for j in range(begin, end+1) ]
+                # elif(ratnlngth<args.p and args.p>1):
+                #     rationale_data[i]['x'][begin:end] = ['<unk>' for j in range(begin, end+1) ]
+                
+
                 begin = end+1
                 
             
@@ -162,7 +175,7 @@ def main():
         file = 'annotations'+str(args.p)+'.json'
         with open(file, 'w') as outfile:
             for i, x in enumerate(rationale_data):
-                print x
+                # print x
                 outfile.write(json.dumps(x)+"\n")
 
 

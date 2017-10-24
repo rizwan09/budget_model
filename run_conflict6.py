@@ -31,9 +31,13 @@ f = 0
 	# f+=1
 	# if(f>4):exit()
 	# for l_2 in lamda_2:
-for f in [ 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08]:#range(0, 10):
-		ff = f#/10.0
-		# if(f==0):ff = 1e-5
+for f in range(1, 10):
+		ff = f/1.0
+		# ff=str(1)+".0"
+		pre =""
+		if(f==-1):
+			pre = "../"
+			ff=""
 		l_1 = lamda_1[0]
 		l_2 = lamda_2[0]
 		for lr in [ 0.0005]:
@@ -62,7 +66,7 @@ for f in [ 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08]:#range(0, 10):
 			# run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python just_output_layer_fix_enc_train_rcnn_gen.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) + ' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
 			# 	' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "MODELS/"+model_file +' --load_model '+ load_model_file + ' --load_emb_only '+ str(load_emb_only)
 			
-			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python conflict6.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --load_rationale annotations'+str(ff)+'.json --aspect ' + str(aspect) + \
+			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python conflict6.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --load_rationale '+pre+'annotations'+str(ff)+'.json --aspect ' + str(aspect) + \
 				' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr) +' --load_model '+ load_model_file  + ' --load_emb_only '+ str(load_emb_only) + ' --graph_data_path '+ graph_data_file
 			
 			#run_command = 'python generator_fix.py --embedding word_vec.gz --load_rationale annotations.json --dump '+output_file+' --select_all ' +str(select_all)+ ' --aspect ' +str(aspect) +' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --load_model ' + 'model_new_generators/'+model_file #+ ' --graph_data_path '+ graph_data_file
@@ -73,6 +77,7 @@ for f in [ 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08]:#range(0, 10):
 			os.system(run_command)
 			# os.system('python conflict5.py --load_rationale ../annotations.json --embedding ../word_vec.gz --aspect 1 --p 1e-5'#+str(ff))
 			print '\n\n\n'
-			# exit()
+			exit()
+
 
 
