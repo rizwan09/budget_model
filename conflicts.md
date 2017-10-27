@@ -18,4 +18,4 @@ Conflict6: run full enc on annotations0.1, annotations0.2 etc and record the per
 
 Conflict7: train data preprocessing to generate a train set where some sentences are blanked out.
 
-Conflict8: Train full enc on a corpus of originals + blank out (santy check with sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005)
+Conflict8: Train full enc on a corpus of originals + blank out (sanity check with sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005)
