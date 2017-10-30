@@ -21,5 +21,5 @@ to run: THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python conflict7
 
 Conflict8: Train full enc on a corpus of originals + blank out (sanity check with sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005) {also to reproduce the full enc performace}
 
-conflict9: genearte test set with all gold + randomly selection of sentences depending on args.p
+conflict9:  test with set (all gold + randomly selection of sentences depending on args.selection) and record the result to see, the performance of mse vs selection
 
