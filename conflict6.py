@@ -850,7 +850,25 @@ class Model(object):
             #                     actual_rationales+=1
             #         id_+=1
             #         cnt_c+=1
-                            
+                    
+            # bz_T = bz.T
+            # mask_T = mask.T
+            # num_pad = 0
+            # for idx in range(len(bz_T)):
+            #     z = bz_T[idx]
+            #     m = mask_T[idx]
+            #     num_pad = len(m) - sum(m)
+                
+            #     truez_intvals = reviews[cnt_t][aspect]
+            #     # print z,m, len(m) , sum(m), num_pad, truez_intvals
+            #     for u in truez_intvals:
+            #         # print 'updating: idx: ', idx
+            #         for i in range(u[0], u[1]):
+            #             bz_T[idx][num_pad+i] = 1
+            #             # print 'updating: i: ', i
+            #     cnt_t += 1
+            
+            # bz = bz_T.T
             
 
 
@@ -873,7 +891,7 @@ class Model(object):
             rank_error += r_e
             match_error += m_e
 
-            print 'gold: ', y_gold, "\n p: ", p, " y pred: ", y_pred, " rank error: ", r_e, ' match error: ', m_e
+            print 'gold: ', y_gold, "\n p: ", p[:,args.aspect], " y pred: ", y_pred, " rank error: ", r_e, ' match error: ', m_e
 
 
             encoder_time = time.time() - start_encode_time
@@ -881,7 +899,7 @@ class Model(object):
             
 
             mask2 =  (bx != unk_id) * mask
-
+            if(args.p==0): mask2 = mask
             tot_mse += e
             p1 += np.sum(bz*mask2)/(np.sum(mask) + 1e-8)
             if args.aspect >= 0:
@@ -1101,7 +1119,7 @@ def main():
             #        time.time() - start_rational_time
             #))
 
-            data = str('%.5f' % r_mse) + "\t" + str('%4.2f' %r_p1) + "\t" + str('%4.4f' %r_prec1) + "\t" + str('%4.4f' %r_prec2) +"\t"+str(recall)+"\t"+str(actual_recall)+"\t"+str(recall*r_prec1)+"\t" + str('%4.2f' %gen_time) + "\t" + str('%4.2f' %enc_time) + "\t" +  str('%4.2f' %prec_cal_time) + "\t" +str('%4.2f' % (time.time() - start_rational_time)) +"\t" \
+            data = str('%.5f' % r_mse) + "\t" + str('%4.4f' %r_p1) + "\t" + str('%4.4f' %r_prec1) + "\t" + str('%4.4f' %r_prec2) +"\t"+str(recall)+"\t"+str(actual_recall)+"\t"+str(recall*r_prec1)+"\t" + str('%4.2f' %gen_time) + "\t" + str('%4.2f' %enc_time) + "\t" +  str('%4.2f' %prec_cal_time) + "\t" +str('%4.2f' % (time.time() - start_rational_time)) +"\t" \
             + str(args.sparsity) + "\t" + str(args.coherent) + "\t" +str(args.max_epochs) +"\t"+str(args.cur_epoch)+ "\t"+str(me)+ "\t"+str(re)
      
             

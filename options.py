@@ -180,6 +180,14 @@ def load_arguments():
             type = float,
             default = 0
         )
+    argparser.add_argument("--balnk_out_prob",
+            type = float,
+            default = 0.4
+        )
+    argparser.add_argument("--num_data",
+            type = int,
+            default = 5
+        )
 
     argparser.add_argument("--graph_data_path",
             type = str,
@@ -192,6 +200,8 @@ def load_arguments():
                         help='small train set to debug')
     argparser.add_argument('--select_all', type=float, default=-1,
                         help='percentage of selection or -1')
+    argparser.add_argument('--test_smaple_rate', type=float, default=1,
+                        help='percentage of test sample sentences where there is no ratuonales')
     argparser.add_argument('--cur_epoch', type=int, default=-1,
                         help='epoch no of the trained model')
 

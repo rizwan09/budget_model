@@ -1,4 +1,7 @@
 
+
+
+    
 import os, sys, gzip, string, json
 import time
 import math
@@ -26,125 +29,50 @@ np.random.seed(seed=1111)
 total_encode_time = 0
 total_generate_time = 0
 
-def save_model(self, path, args):
 
-        # append file suffix
-        if not path.endswith(".pkl.gz"):
-            if path.endswith(".pkl"):
-                path += ".gz"
-            else:
-                path += ".pkl.gz"
 
-        # output to path
-        with gzip.open(path, "wb") as fout:
-            pickle.dump(
-                ([ x.get_value() for x in self.encoder.params ],   # encoder
-                 [ x.get_value() for x in self.generator.params ], # generator
-                 self.nclasses,
-                 args                                 # training configuration
-                ),
-                fout,
-                protocol = pickle.HIGHEST_PROTOCOL
-            )
 
 def main():
     print args
     
-    embedding_layer = myio.create_embedding_layer(
-                        args.embedding
-                    )
-    padding_id = embedding_layer.vocab_map["<padding>"]
-    if args.load_rationale:
-        rationale_data = myio.read_rationales(args.load_rationale)
-        rationale_data_ori = myio.read_rationales(args.load_rationale)
-        for i, x in enumerate(rationale_data):
-            # x["xids"] = embedding_layer.map_to_ids(x["x"])
-            # print x
-            truez_intvals = x[str(args.aspect)]
-            # print truez_intvals
-            # idx = [0] + [ j for j, w in enumerate(x["x"]) if w in string.punctuation ]
-            idx = [ j for j, w in enumerate(x["x"]) if w in '.' ] + [len(x['x']) - 1]
-            # print len(x['x']), idx[-1]
-            begin = 0
-            for end in idx:
-                # print ' now begin: ', begin, ' end: ', end
-                slngth = end - begin
-                if(slngth<1): break
-                ratnlngth = 1e-5
-                if(args.p>0):
-                    for u in truez_intvals:
-                        r_b = u[0]
-                        r_e = u[1]
-                        if(u[0]>= begin or u[1]<=end):
-                            if(u[0]<begin): r_b = begin
-                            if(u[1]>end): r_e = end+1
-                            diff = r_e - r_b
-                            # print r_b, r_e
-                            if(diff>0):ratnlngth += diff
-                    # print ('ratnlngth/slngth: ', ratnlngth/slngth)
-                    if(ratnlngth/slngth < args.p):
-                        # print ratnlngth, slngth, ratnlngth/slngth, begin, end
-                        rationale_data[i]['x'][begin:end] = ["<unk>" for j in range(begin,end+1)]
-                else:
-                    if(any(begin>=u[0] or end<=u[1] for u in truez_intvals) == False):
-                        rationale_data[i]['x'][begin:end] = ["<unk>" for j in range(begin,end+1)]
-                begin = end+1
-                
-            
-            
+    # embedding_layer = myio.create_embedding_layer(
+    #                     args.embedding
+    #                 )
+    # padding_id = embedding_layer.vocab_map["<padding>"]
+    if args.train:
+        np.random.seed(seed=1111)
+        train_x, train_y = myio.read_annotations(args.train)
+        train_x_union, train_y_union  = myio.read_annotations(args.train)
+        len_train_x_ori = len(train_x_union)
 
-            # break
-        # for i, x in enumerate(rationale_data):
-        #     print x['x']
-        #     print rationale_data_ori[i]['x']
-            # break
+        for i in range(args.max_epochs):
+            for j in range(len(train_x)) :
+                idx = len(train_x_union)
+                train_x_union.append([])
+                train_y_union.append(train_y[j])
+                x = train_x[j]
+                a = 0
+                for b in range(len(x)):
+                    w = x[b]
+                    if w == '.':
+                        rnd = np.random.rand()
+                        # if(i==3 and j==3):print i, j, rnd
+                        if (rnd>args.balnk_out_prob or b+1<len(x)): # the reason is at least one sentence should be included
+                            for ww in x[a:b+1]: train_x_union[idx].append(ww)
+                        a = b+1 
 
 
-        file = 'annotations'+str(args.p)+'.json'
-        with open(file, 'w') as outfile:
-            for i, x in enumerate(rationale_data):
-                print x
-                outfile.write(json.dumps(x)+"\n")
+        #     assert len(train_x_union) == len(train_y_union)
 
-
-        # rationale_data_new = myio.read_rationales(file)
-        # for i, x in enumerate(rationale_data_new):
-        #     print x
-        #     break
-
-        # with open('../annotations'+str(args.p)+'.json',"w") as fout:
-        #     fout.write( json.dumps(rationale_data))
-            
-
-
-
-
-    
-        # if rationale_data is not None:
-        #     valid_batches_x, valid_batches_y = myio.create_batches(
-        #             [ u["xids"] for u in rationale_data ],
-        #             [ u["y"] for u in rationale_data ],
-        #             args.batch,
-        #             padding_id,
-        #             sort = False
-        #         )
-        
-
-        # # disable dropout
-        # model.dropout.set_value(0.0)
-        # if rationale_data is not None:
-        #     #model.dropout.set_value(0.0)
-        #     start_rational_time = time.time()
-        #     r_mse, r_p1, r_prec1, r_prec2, gen_time, enc_time, prec_cal_time, recall, actual_recall = model.evaluate_rationale(
-        #             rationale_data, valid_batches_x,
-        #             valid_batches_y, sample_generator, sample_encoder, eval_func)
-        #             #valid_batches_y, eval_func)
-
-
-
-
-        
+        print("ori: \n", train_x[-1], train_y[-1], "----"*10)
+        print('new after 1st iter: \n', train_x_union[2*len_train_x_ori-1],  train_y_union[2*len_train_x_ori-1], "----"*10)
+        print('new after 3nd iter: \n', train_x_union[4*len_train_x_ori-1],  train_y_union[4*len_train_x_ori-1], "----"*10)
+        print('final: \n', train_x_union[-1],  train_y_union[-1], "----"*10)
+        print('ori size: ', len_train_x_ori)
+        print(" final length: ",len(train_x_union) ,  len(train_y_union) )
 
 if __name__=="__main__":
     args = options.load_arguments()
+    if(args.p<=0):args.p = 0.5
     main()
+
