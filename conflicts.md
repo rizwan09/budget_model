@@ -23,3 +23,6 @@ Conflict8: Train full enc on a corpus of originals + blank out (sanity check wit
 
 conflict9:  test with set (all gold + randomly selection of sentences depending on args.selection) and record the result to see, the performance of mse vs selection
 
+conflict10: load union and original full encoder and (with no generator or with loading defferent geneartor like rcnn, linear) run the experimens to collect result.
+
+
