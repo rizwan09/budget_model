@@ -30,6 +30,10 @@ def get_test_sampled_data(args):
     np.random.seed(seed=1111)
     rationale_data = myio.read_rationales(args.load_rationale)
     rationale_data_ori = myio.read_rationales(args.load_rationale)
+
+    balnk_out_words =[]
+    balnk_out_words_num = 0
+    total_words = 0
     for i, x in enumerate(rationale_data):
         idx = [ j for j, w in enumerate(x["x"]) if w in '.' ] + [len(x['x']) - 1]
         truez_intvals = x[str(args.aspect)]
@@ -37,6 +41,7 @@ def get_test_sampled_data(args):
         for end in idx:
             # print ' now begin: ', begin, ' end: ', end
             slngth = end - begin + 1
+            total_words += slngth
             if(slngth<1): break
             ratnlngth = 1e-5
             for u in truez_intvals:
@@ -55,13 +60,15 @@ def get_test_sampled_data(args):
                 assert ratnlngth == 1e-5
             
             rnd = np.random.rand()
-            if(ratnlngth<1 and rand>args.test_smaple_rate):
-                print ' begin: ', begin, ' end: ', end, " true: ", truez_intvals, ' rand: ', rand, ' sample rate: ', args.test_smaple_rate
+            if(ratnlngth<1 and rnd>args.test_smaple_rate):
+                # print ' begin: ', begin, ' end: ', end, " true: ", truez_intvals, ' rnd: ', rnd, ' sample rate: ', args.test_smaple_rate
+                balnk_out_words_num+=slngth
+                balnk_out_words.append(rationale_data[i]['x'][begin:end+1])
                 rationale_data[i]['x'][begin:end] = ['<unk>' for j in range(begin, end+1) ]
 
             begin = end+1
 
-    print " selection should be: ", len(rationale_data)/len(rationale_data_ori)
+    print " now selection should be: ", (1.00 - (balnk_out_words_num*1.00/total_words)), ' #balnk_out_words: ', balnk_out_words_num, ' total: ', total_words
     
     return rationale_data
 
@@ -757,6 +764,7 @@ class Model(object):
         #print "first in evaluate_rational func"
         args = self.args
         padding_id = self.embedding_layer.vocab_map["<padding>"]
+        unk_id = self.embedding_layer.vocab_map["<unk>"]
         aspect = str(args.aspect)
         p1, tot_mse, tot_prec1, tot_prec2, tot_rec1 = 0.0, 0.0, 0.0, 0.0, 0.0
         tot_z, tot_n, tot_tn = 1e-10, 1e-10, 1e-10
@@ -794,9 +802,10 @@ class Model(object):
             encode_total_time += encoder_time
             
 
-            
+
+            mask2 = mask * (bx != unk_id)
             tot_mse += e
-            p1 += np.sum(bz*mask)/(np.sum(mask) + 1e-8)
+            p1 += np.sum(bz*mask2)/(np.sum(mask) + 1e-8)
             if args.aspect >= 0:
                 for z,m in zip(bz.T, mask.T):
                     z = [ vz for vz,vm in zip(z,m) if vm ]

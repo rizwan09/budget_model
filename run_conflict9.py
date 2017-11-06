@@ -35,30 +35,34 @@ union = 'union_'
 # union = ''
 num_data = 5
 
-for dp in dropout:
+# for dp in dropout:
+for dp in [0.2]:
 		l_1 = 0
 		l_2 = 0
-		for lr in [ 0.0005, 0.005, 0.0001]:
+		# for lr in [ 0.0005, 0.005, 0.0001]:
+		for lr in [0.005]:
+			for test_smaple_rate in [1.00, 0.99, 0.98, 0.97, 0.96, 0.95, 0.9, 0.8, 0.75, 0.65, 0.55, 0.45, 0.35, 0.25, 0.15]:
 			
-			model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-			# load_model_file = _type+'MODELS/'+model_file + str(trained_max_epochs)
-			load_model_file  =''
-			if num_data>0:
-				assert union !=''
-				assert trained_max_epochs !=95
-				assert load_model_file == ''
-			# else:
-			# 	assert load_model_file != ''
-			conflict_file = "conflict9.py"
-			if(conflict_file =="conflict9.py"): assert select_all==1 # for the code of conflict9 it select everything after sampling
-			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python  '+ conflict_file +' --embedding ../word_vec.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
-				' --dump ' + output_file + ' --dropout '+  str(dp) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)  +' --load_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) + ' --graph_data_path '+ graph_data_file 
-			
-			# run_command+= ' >> '+_type+union+ model_file +'.txt'
-			print run_command 
-			os.system(run_command)
-			print '\n\n\n'
-			# exit()
+				model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+				# load_model_file = _type+'MODELS/'+model_file + str(trained_max_epochs)
+				load_model_file  =''
+				if num_data>0:
+					assert union !=''
+					assert trained_max_epochs !=95
+					assert load_model_file == ''
+				# else:
+				# 	assert load_model_file != ''
+				conflict_file = "conflict9.py"
+				if(conflict_file =="conflict9.py"): assert select_all==1 # for the code of conflict9 it select everything after sampling
+				run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python  '+ conflict_file +' --embedding ../word_vec.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
+					' --dump ' + output_file + ' --dropout '+  str(dp) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)  +' --load_model ' + _type +'MODELS/'+union+model_file+\
+					' --num_data '+str(num_data) + ' --graph_data_path '+ graph_data_file + ' --test_smaple_rate '+ str(test_smaple_rate)
+				
+				# run_command+= ' >> '+_type+union+ model_file +'.txt'
+				print run_command 
+				os.system(run_command)
+				print '\n\n\n'
+				# exit()
 
 
 
