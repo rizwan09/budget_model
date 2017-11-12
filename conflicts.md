@@ -1,3 +1,6 @@
+plot_conflict1 (in folder: graph_data): plot different tables in a same graph. (i.e., first run_conflict10 generates tables for full enc and just_output_layer, linear, rcnn generator, now plot_conflict1 will plot these tables in a same graph)
+
+
 Conflict Id: 1, gen: rcnn (modified by me), enc: rcnn, trainable: both, initialize: rand, [special run setting: (lamda1, lamda2, lr):: (0.0003, 0.8, 0005), (0.0001, 0.5, 0005)(0.00012, 1.0, 0005 not that important)] script: run_conflict1.py, code: conflict1.py
 
 
