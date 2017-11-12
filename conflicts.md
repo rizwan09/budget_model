@@ -25,4 +25,5 @@ conflict9:  test with set (all gold + randomly selection of sentences depending 
 
 conflict10: load union and original full encoder and (with no generator or with loading defferent geneartor like rcnn, linear) run the experimens to collect result.
 
+rcnn_gen: I can train jointly rcnn gen + rcnn enc, and later load only the rcnn gen part with the full enc from the other model 
 
