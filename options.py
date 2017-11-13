@@ -200,10 +200,19 @@ def load_arguments():
                         help='small train set to debug')
     argparser.add_argument('--select_all', type=float, default=-1,
                         help='percentage of selection or -1')
-    argparser.add_argument('--test_smaple_rate', type=float, default=1,
+    argparser.add_argument('--test_smaple_rate', type=float, default=0.1,
                         help='percentage of test sample sentences where there is no ratuonales')
     argparser.add_argument('--cur_epoch', type=int, default=-1,
                         help='epoch no of the trained model')
+    argparser.add_argument('--gen_type', type=str, default="rcnn",
+                        help='which gen or rand selection')
+    argparser.add_argument('--load_gen', type=int, default=0,
+                        help='load gen or not')
+    argparser.add_argument('--load_enc', type=int, default=0,
+                        help='load enc or not')
+    argparser.add_argument('--load_gen_model', type=str, default="",
+                        help='gen model path')
+
 
     args = argparser.parse_args()
     return args
