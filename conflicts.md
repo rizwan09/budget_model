@@ -22,7 +22,7 @@ Conflict6: run full enc on annotations0.1, annotations0.2 etc and record the per
 Conflict7: train data preprocessing to generate a train set where some sentences are blanked out.
 to run: THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python conflict7.py --train ../reviews.aspect1.train.txt.gz --max_epochs 5, this code is appended in conflict8
 
-Conflict8: Train full enc on a corpus of originals + blank out (sanity check with sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005) {also to reproduce the full enc [performace](https://docs.google.com/spreadsheets/d/1xQmQpaoojtVGbEJT4CY_qqMzBTnjq_uRZ9vDfjQHVko/edit#gid=0)
+Conflict8: Train full enc on a corpus of originals + blank out (sanity check with sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005) {also to reproduce the full enc [performace](https://docs.google.com/spreadsheets/d/1xQmQpaoojtVGbEJT4CY_qqMzBTnjq_uRZ9vDfjQHVko/edit#gid=0) }
 
 conflict9:  test with set (all gold + randomly selection of sentences depending on args.selection) and record the result to see, the performance of mse vs selection
 
