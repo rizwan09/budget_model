@@ -1,14 +1,17 @@
+plot_conflict1 (in folder: graph_data): plot different tables in a same graph. (i.e., first run_conflict10 generates tables for full enc and just_output_layer, linear, rcnn generator, now plot_conflict1 will plot these tables in a same graph)
+
+
 Conflict Id: 1, gen: rcnn (modified by me), enc: rcnn, trainable: both, initialize: rand, [special run setting: (lamda1, lamda2, lr):: (0.0003, 0.8, 0005), (0.0001, 0.5, 0005)(0.00012, 1.0, 0005 not that important)] script: run_conflict1.py, code: conflict1.py
 
 
-Conflict Id: 2, gen: rcnn (modified by me), enc: rcnn, trainable: both, initialize_enc: [full_enc file](https://github.com/rizwan09/budget_model/blob/dev/model_sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005_max_epochs_100.txt.pkl.gz) , [special run setting: (lamda1, lamda2, lr):: (0.0003, 0.8, 0005), (0.0001, 0.5, 0005)(0.00012, 1.0, 0005 not that important)] script: run_conflict1.py (edited _type = /CONFLICT2, gpu1, add load_model to the full enc and load_emb = 1), code: conflict1.py (no change will train both)
+Conflict Id: 2, gen: rcnn (modified by me), enc: rcnn, trainable: both, initialize_enc: [joint full_enc file](https://github.com/rizwan09/budget_model/blob/dev/model_sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005_max_epochs_100.txt.pkl.gz) , [special run setting: (lamda1, lamda2, lr):: (0.0003, 0.8, 0005), (0.0001, 0.5, 0005)(0.00012, 1.0, 0005 not that important)] script: run_conflict1.py (edited _type = /CONFLICT2, gpu1, add load_model to the full enc and load_emb = 1), code: conflict1.py (no change will train both)
 
 
 Conflict Id: 3, gen: rcnn (modified by me), enc: rcnn, trainable: only enc (gen is fixed & loaded from --load_model ../JUST_OUTPUT_LAYER/FIX_ENC_TRAIN_RCNN_GEN2/MODELS/ model from the list of models here by parameters), initialize: rand, [special run setting: (lamda1, lamda2, lr):: (0.0003, 0.8, 0005), (0.0001, 0.5, 0005)(0.00012, 1 (not 1.0), 0005 not that important)] script: run_conflict3.py, code: conflict3.py
 
 
 
-Conflict Id: 4, gen: rcnn (but sentence level), enc = rcnn trainable: only geneartor (enc fixed  [full_enc file](https://github.com/rizwan09/budget_model/blob/dev/model_sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005_max_epochs_100.txt.pkl.gz) )script: run_conflict4.py, code: conflict4.py
+Conflict Id: 4, gen: rcnn (but sentence level), enc = rcnn trainable: only geneartor (enc fixed [joint full_enc file](https://github.com/rizwan09/budget_model/blob/dev/model_sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005_max_epochs_100.txt.pkl.gz) )script: run_conflict4.py, code: conflict4.py
 
 
 Conflict5: genearte a test corpus where senetences are removed if the gold rationales in that sentence is lower than p
@@ -19,10 +22,13 @@ Conflict6: run full enc on annotations0.1, annotations0.2 etc and record the per
 Conflict7: train data preprocessing to generate a train set where some sentences are blanked out.
 to run: THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python conflict7.py --train ../reviews.aspect1.train.txt.gz --max_epochs 5, this code is appended in conflict8
 
-Conflict8: Train full enc on a corpus of originals + blank out (sanity check with sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005) {also to reproduce the full enc performace}
+Conflict8: Train full enc on a corpus of originals + blank out (sanity check with sparsity_0.0003_coherent_1_dropout_0.1_lr_0.005) {also to reproduce the full enc [performace](https://docs.google.com/spreadsheets/d/1xQmQpaoojtVGbEJT4CY_qqMzBTnjq_uRZ9vDfjQHVko/edit#gid=0) }
 
 conflict9:  test with set (all gold + randomly selection of sentences depending on args.selection) and record the result to see, the performance of mse vs selection
 
-conflict10: load union and original full encoder and (with no generator or with loading defferent geneartor like rcnn, linear) run the experimens to collect result.
+run_conflict10: load union and original full encoder and (with no generator or with loading defferent geneartor like rcnn (conflict10), just output layer (conflict11), linear (conflict12) run the experimens to collect result.
 
+rcnn_gen: I can train jointly rcnn gen + rcnn enc, and later load only the rcnn gen part with the full enc from the other model 
+
+conflict14: record the performance of full encoder trained on all text in original and union of blankout trainset on the test set with the gold rationales as selcted only
 
