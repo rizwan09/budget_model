@@ -37,3 +37,4 @@ conflict14: record the performance of full encoder trained on all text in origin
 run_conflict15: load union and original full encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict10)  predictor geneartor like rcnn of tao lei (conflict15), just output layer (conflict16), linear (conflict17) run the experimens to collect result.
 
 conflict18: geneartor of just_output_layer with input: average( word_embeddings(word_t-2,t-1,t,t+1,t+2)) neighboring info
+in contrast to the the simple word embedding of that word only (just_output_layer) and jointly train with an encoder. The genrator modeule can also be loaded (without the joint encoder) with different encoder (like full enc) afterwards.
