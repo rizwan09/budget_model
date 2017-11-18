@@ -32,6 +32,6 @@ rcnn_gen: I can train jointly rcnn gen + rcnn enc, and later load only the rcnn 
 
 conflict14: record the performance of full encoder trained on all text in original and union of blankout trainset on the test set with the gold rationales as selcted only
 
-run_conflict15: load union and original full encoder and (with no generator or with loading defferent sentence level predictor geneartor like rcnn of tao lei (conflict15), just output layer (conflict16), linear (conflict17) run the experimens to collect result.
+run_conflict15: load union and original full encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict10)  predictor geneartor like rcnn of tao lei (conflict15), just output layer (conflict16), linear (conflict17) run the experimens to collect result.
 
 
