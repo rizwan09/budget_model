@@ -28,9 +28,9 @@ Conflict8: Train full enc on a corpus of originals + blank out (sanity check wit
 
 conflict9:  test with set (all gold + randomly selection of sentences depending on args.selection) and record the result to see, the performance of mse vs selection
 
-run_conflict10: load union and original full encoder and (with no generator or with loading defferent geneartor like rcnn of tao lei (conflict10), just output layer (conflict11), linear (conflict12) run the experimens to collect result.
-
 rcnn_gen: I can train jointly rcnn gen + rcnn enc, and later load only the rcnn gen part with the full enc from the other model 
+
+run_conflict10: load union and original full encoder and (with no generator or with loading defferent geneartor like rcnn of tao lei (conflict10), just output layer (conflict11), linear (conflict12) run the experimens to collect result.
 
 conflict14: record the performance of full encoder trained on all text in original and union of blankout trainset on the test set with the gold rationales as selcted only
 
