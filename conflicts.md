@@ -19,6 +19,8 @@ run: python conflict5.py --load_rationale ../annotations.json --embedding ../wor
 
 Conflict6: run full enc on annotations0.1, annotations0.2 etc and record the performance. 
 
+#### the folowings are fruitful codes
+
 Conflict7: train data preprocessing to generate a train set where some sentences are blanked out.
 to run: THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python conflict7.py --train ../reviews.aspect1.train.txt.gz --max_epochs 5, this code is appended in conflict8
 
@@ -26,9 +28,13 @@ Conflict8: Train full enc on a corpus of originals + blank out (sanity check wit
 
 conflict9:  test with set (all gold + randomly selection of sentences depending on args.selection) and record the result to see, the performance of mse vs selection
 
-run_conflict10: load union and original full encoder and (with no generator or with loading defferent geneartor like rcnn (conflict10), just output layer (conflict11), linear (conflict12) run the experimens to collect result.
+run_rcnn_gen: I can train jointly rcnn gen + rcnn enc, and later load only the rcnn gen part with the full enc from the other model by running rcnn_gen.py
 
-rcnn_gen: I can train jointly rcnn gen + rcnn enc, and later load only the rcnn gen part with the full enc from the other model 
+run_conflict10: load union and original full encoder and (with no generator or with loading defferent geneartor like rcnn of tao lei (conflict10), just output layer (conflict11), linear (conflict12) run the experimens to collect result.
 
 conflict14: record the performance of full encoder trained on all text in original and union of blankout trainset on the test set with the gold rationales as selcted only
 
+run_conflict15: load union and original full encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict10)  predictor geneartor like rcnn of tao lei (conflict15), just output layer (conflict16), linear (conflict17) run the experimens to collect result.
+
+conflict18: geneartor of just_output_layer with input: average( word_embeddings(word_t-2,t-1,t,t+1,t+2)) neighboring info
+in contrast to the the simple word embedding of that word only (just_output_layer) and jointly train with an encoder. The genrator modeule can also be loaded (without the joint encoder) with different encoder (like full enc) afterwards.
