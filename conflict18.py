@@ -47,8 +47,8 @@ class Generator(object):
         self.nclasses = nclasses
         self.nneighbor = 2 #context of 5 words
 
-    def get_avg_emb(self, embs_mid, i):
-        return T.mean(self.word_embs[i-self.nneighbor: i+self.nneighbor+1,:,:], axis = 0), i+1 #theano.scan_module.until(embs_mid)
+    def get_avg_emb(self,  i, embs_mid,):
+        return T.mean(embs_mid[i: i+2*self.nneighbor+1,:,:], axis = 0)#theano.scan_module.until(embs_mid)
 
 
     def ready(self):
@@ -84,19 +84,23 @@ class Generator(object):
 
         flipped_embs = embs[::-1]
 
-        # avg_embs = T.zeros((x.shape[0], x.shape[1], n_e))
-        avg_embs = embs
+        # n_e = (2*self.nneighbor+1)*n_e
+
+        avg_embs = T.zeros_like(embs)
+        # avg_embs = embs
         # avg_embs = T.set_subtensor(avg_embs[:, :, :], embs[:, :, :])
         for i in range(self.nneighbor):
             avg_embs = T.set_subtensor(avg_embs[i, :, :],T.mean(embs[0:i+self.nneighbor+1,:,:], axis = 0)) #along the len dimention
-        [avg_emb_middle, i], _ = theano.scan(
+        
+        avg_emb_middle, _ = theano.scan(
                     fn = self.get_avg_emb,
-                    sequences = embs[self.nneighbor:-self.nneighbor, :, :],
-                    outputs_info = [None, self.nneighbor]
+                    sequences = T.arange(x.shape[0] - 2*self.nneighbor),
+                    non_sequences = embs,
+                    outputs_info = None
                 )
 
 
-        avg_embs = T.set_subtensor( avg_embs[self.nneighbor:-self.nneighbor, :, :], avg_emb_middle)
+        avg_embs = T.set_subtensor( avg_embs[self.nneighbor:-self.nneighbor, :, :], avg_emb_middle[:,:,:])
 
 
         for i in range(self.nneighbor):
@@ -519,7 +523,7 @@ class Model(object):
                     mask = bx != padding_id
                     start_train_time = time.time()
                     cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2, avg_emb_gen, avg_1_6, avg_emb_middle = train_generator(bx, by)
-                    if i == 0: print('avg embs: ' , avg_emb_gen[0:4, 0:1, 0:5], 'avg_1_6: ', avg_1_6[0:1,0:5], ' avg_emb_middle[0:3, 0:1, 0:5]: ', avg_emb_middle[0:3, 0:1, 0:5],' emb: ', emb[0:7, 0:1, 0:5], 'last avg: ', avg_emb_gen[-1, 0:1, 0:5], ' emb: ', emb[-3:, 0:1, 0:5] )
+                    if i == 0: print('avg embs: ' , avg_emb_gen[0:4, 0:1, 0:5], 'avg_1_6: ', avg_1_6[0:1,0:5], ' emb: ', emb[0:10, 0:1, 0:5], 'last avg: ', avg_emb_gen[-1, 0:1, 0:5], ' emb: ', emb[-3:, 0:1, 0:5] )
                     exit()
 
                     k = len(by)
