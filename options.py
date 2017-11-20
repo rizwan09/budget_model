@@ -186,7 +186,7 @@ def load_arguments():
         )
     argparser.add_argument("--num_data",
             type = int,
-            default = 5
+            default = 0
         )
 
     argparser.add_argument("--graph_data_path",
