@@ -38,3 +38,6 @@ run_conflict15: load union and original full encoder and (with no generator or w
 
 conflict18: geneartor of just_output_layer with input: average( word_embeddings(word_t-2,t-1,t,t+1,t+2)) neighboring info
 in contrast to the the simple word embedding of that word only (just_output_layer) and jointly train with an encoder. The genrator modeule can also be loaded (without the joint encoder) with different encoder (like full enc) afterwards (conflict20 and run_conflict10)
+
+conflict21: load IMDB movie dataset, set evaluation and loss function accordingly, to train diff_gen+enc jointly, and then records results of same experiemnts (full enc, different gen+ full enc). Run by run_conflict21
+
