@@ -60,7 +60,7 @@ for file in os.listdir("/Users/rizwanparvez/Downloads/aclImdb/train/pos"):
         score,_ = score.split('.')
         # print(int(id), int(score))
         with open(os.path.join("/Users/rizwanparvez/Downloads/aclImdb/train/pos", file), 'r') as f:
-            train_dev_pos.append(score + "\t" + f.readline().replace("\n", ""))
+            train_dev_pos.append("0."+score + "\t" + f.readline().replace("\n", ""))
 
 for file in os.listdir("/Users/rizwanparvez/Downloads/aclImdb/train/neg"):
     if file.endswith(".txt"):
@@ -69,7 +69,7 @@ for file in os.listdir("/Users/rizwanparvez/Downloads/aclImdb/train/neg"):
         score,_ = score.split('.')
         # print(int(id), int(score))
         with open(os.path.join("/Users/rizwanparvez/Downloads/aclImdb/train/neg", file), 'r') as f:
-            train_dev_neg.append(score + "\t" + f.readline().replace("\n", ""))
+            train_dev_neg.append("0."+score + "\t" + f.readline().replace("\n", ""))
 
 for file in os.listdir("/Users/rizwanparvez/Downloads/aclImdb/test/pos"):
     if file.endswith(".txt"):
@@ -78,7 +78,7 @@ for file in os.listdir("/Users/rizwanparvez/Downloads/aclImdb/test/pos"):
         score,_ = score.split('.')
         # print(int(id), int(score))
         with open(os.path.join("/Users/rizwanparvez/Downloads/aclImdb/test/pos", file), 'r') as f:
-            test_pos.append(score + "\t" + f.readline().replace("\n", ""))
+            test_pos.append("0."+score + "\t" + f.readline().replace("\n", ""))
 
 for file in os.listdir("/Users/rizwanparvez/Downloads/aclImdb/test/neg"):
     if file.endswith(".txt"):
@@ -87,7 +87,7 @@ for file in os.listdir("/Users/rizwanparvez/Downloads/aclImdb/test/neg"):
         score,_ = score.split('.')
         # print(int(id), int(score))
         with open(os.path.join("/Users/rizwanparvez/Downloads/aclImdb/test/neg", file), 'r') as f:
-            test_neg.append(score+"\t"+ f.readline().replace("\n", ""))
+            test_neg.append("0."+score+"\t"+ f.readline().replace("\n", ""))
 
 
 print(len(train_dev_pos))
