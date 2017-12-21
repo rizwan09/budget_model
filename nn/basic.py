@@ -20,10 +20,14 @@
 
     @author: Tao Lei
 '''
+<<<<<<< HEAD
 import sys  
 
 reload(sys)  
 sys.setdefaultencoding('ascii')
+=======
+
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 import numpy as np
 import theano
 import theano.tensor as T
@@ -253,12 +257,17 @@ class EmbeddingLayer(object):
         fix_init_embs   : whether to fix the initial word vectors loaded from embs
 
     '''
+<<<<<<< HEAD
     def __init__(self, n_d, vocab, oov="<unk>", embs=None, fix_init_embs=True, is_glove = False, is_rt=False):
+=======
+    def __init__(self, n_d, vocab, oov="<unk>", embs=None, fix_init_embs=True):
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 
         if embs is not None:
             lst_words = [ ]
             vocab_map = {}
             emb_vals = [ ]
+<<<<<<< HEAD
 
             if is_glove:
                 # print vocab_map
@@ -282,6 +291,13 @@ class EmbeddingLayer(object):
                     vocab_map[word] = len(vocab_map)
                     emb_vals.append(vector)
                     lst_words.append(word)
+=======
+            for word, vector in embs:
+                assert word not in vocab_map, "Duplicate words in initial embeddings"
+                vocab_map[word] = len(vocab_map)
+                emb_vals.append(vector)
+                lst_words.append(word)
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 
             self.init_end = len(emb_vals) if fix_init_embs else -1
             if n_d != len(emb_vals[0]):
@@ -335,7 +351,11 @@ class EmbeddingLayer(object):
         n_V, lst_words = self.n_V, self.lst_words
         return [ lst_words[i] if i < n_V else "<err>" for i in ids ]
 
+<<<<<<< HEAD
     def map_to_ids(self, words, filter_oov=False, is_rt = False):
+=======
+    def map_to_ids(self, words, filter_oov=False):
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
         '''
             map the list of string tokens into a numpy array of integer IDs
 
@@ -361,6 +381,7 @@ class EmbeddingLayer(object):
                     dtype="int32"
                 )
         else:
+<<<<<<< HEAD
             # print 'words: ', words[0:10]
             # print 'vocab_map:' , vocab_map[0:10]
             if is_rt:
@@ -369,6 +390,9 @@ class EmbeddingLayer(object):
                     dtype="int32"
                 )
             else:return np.array(
+=======
+            return np.array(
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
                     [ vocab_map.get(x, oov_id) for x in words ],
                     dtype="int32"
                 )

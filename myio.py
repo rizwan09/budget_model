@@ -7,7 +7,11 @@ import theano
 import numpy as np
 
 from nn import EmbeddingLayer
+<<<<<<< HEAD
 from utils import say, load_embedding_iterator, load_glove_embedding_iterator
+=======
+from utils import say, load_embedding_iterator
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 
 def read_rationales(path):
     data = [ ]
@@ -18,7 +22,11 @@ def read_rationales(path):
             data.append(item)
     return data
 
+<<<<<<< HEAD
 def read_annotations(path, is_movie = False):
+=======
+def read_annotations(path):
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
     data_x, data_y = [ ], [ ]
     fopen = gzip.open if path.endswith(".gz") else open
     with fopen(path) as fin:
@@ -26,10 +34,14 @@ def read_annotations(path, is_movie = False):
             y, sep, x = line.partition("\t")
             x, y = x.split(), y.split()
             if len(x) == 0: continue
+<<<<<<< HEAD
             if not is_movie: y = np.asarray([ float(v) for v in y ], dtype = theano.config.floatX)
             else: 
                 # print y
                 y = np.asarray([ 1 if float(v)>0.5 else 0 for v in y ])
+=======
+            y = np.asarray([ float(v) for v in y ], dtype = theano.config.floatX)
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
             data_x.append(x)
             data_y.append(y)
     say("{} examples loaded from {}\n".format(
@@ -47,6 +59,7 @@ def create_embedding_layer(path):
             embs = load_embedding_iterator(path),
             oov = "<unk>",
             #fix_init_embs = True
+<<<<<<< HEAD
             fix_init_embs = False,
             is_rt=True
         )
@@ -63,6 +76,12 @@ def create_glove_embedding_layer(path, is_rt=False):
             is_glove = True
         )
     return embedding_layer
+=======
+            fix_init_embs = False
+        )
+    return embedding_layer
+
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 
 def create_batches(x, y, batch_size, padding_id, sort=True):
     batches_x, batches_y = [ ], [ ]

@@ -1,8 +1,12 @@
 
 import sys
 import gzip
+<<<<<<< HEAD
 from gensim.models.keyedvectors import KeyedVectors
 import pickle, os
+=======
+
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 import numpy as np
 
 def say(s, stream=sys.stdout):
@@ -20,6 +24,7 @@ def load_embedding_iterator(path):
                 vals = np.array([ float(x) for x in parts[1:] ])
                 yield word, vals
 
+<<<<<<< HEAD
 def load_glove_embedding_iterator(path):
     ########### casching the word similarity model (GLOVE), loading  to gensim ###################
     model = None
@@ -29,3 +34,5 @@ def load_glove_embedding_iterator(path):
         model =  KeyedVectors.load_word2vec_format("glove/"+path, binary=False)#Word2Vec.load_word2vec_format(path, binary=False)
         pickle.dump(model, open('../'+path+'.p',"wb"))
     return model
+=======
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75

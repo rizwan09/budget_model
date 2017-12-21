@@ -40,7 +40,11 @@ class ExtRCNN(RCNN):
 class ExtLSTM(LSTM):
 
     def forward(self, x_t, mask_t, hc_tm1):
+<<<<<<< HEAD
         hc_t = super(ExtLSTM, self).forward(x_t, hc_tm1)
+=======
+        hc_t = super(LSTM, self).forward(x_t, hc_tm1)
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
         hc_t = mask_t * hc_t + (1-mask_t) * hc_tm1
         return hc_t
 

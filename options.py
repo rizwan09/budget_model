@@ -213,9 +213,12 @@ def load_arguments():
     argparser.add_argument('--load_gen_model', type=str, default="",
                         help='gen model path')
 
+<<<<<<< HEAD
     argparser.add_argument('--imdb', type= str, default ='../IMDB/aclImdb/', help = 'location of imdb train dev test dataset')
     argparser.add_argument('--rotten_tomatoes', type= str, default ='../ROTTEN_TOMATOES/', help = 'location of ROTTEN_TOMATOES train dev test dataset')
 
+=======
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 
     args = argparser.parse_args()
     return args
