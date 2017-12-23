@@ -45,3 +45,7 @@ conflict22: load IMDB movie dataset, set evaluation and loss function accordingl
 
 conflict23: load Rotten Tomatoes movie dataset, set evaluation and loss function accordingly, to train full enc, and then records results of same experiemnts (full enc, different gen + full enc). Run by run_conflict22. Here the score is (0/1).
 
+conflict24: Can load full enc and rcnn gen part from (rcnn gen + rcnn enc initialized with full enc) and write the performance in a file.
+
+run_just_output_layer_gen_rt: I can train jointly just output layer gen + rcnn enc (initialized with full enc), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
+
