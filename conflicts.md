@@ -1,6 +1,3 @@
-plot_conflict1 (in folder: graph_data): plot different tables in a same graph. (i.e., first run_conflict10 generates tables for full enc and just_output_layer, linear, rcnn generator, now plot_conflict1 will plot these tables in a same graph)
-
-
 Conflict Id: 1, gen: rcnn (modified by me), enc: rcnn, trainable: both, initialize: rand, [special run setting: (lamda1, lamda2, lr):: (0.0003, 0.8, 0005), (0.0001, 0.5, 0005)(0.00012, 1.0, 0005 not that important)] script: run_conflict1.py, code: conflict1.py
 
 
@@ -20,6 +17,12 @@ run: python conflict5.py --load_rationale ../annotations.json --embedding ../wor
 Conflict6: run full enc on annotations0.1, annotations0.2 etc and record the performance. 
 
 #### the folowings are fruitful codes
+
+
+plot_conflict1 (in folder: graph_data): plot different tables in a same graph. (i.e., first run_conflict10 generates tables for full enc and just_output_layer, linear, rcnn generator, now plot_conflict1 will plot these tables in a same graph)
+
+
+plot_conflict2 (in folder: graph_data): plot different tables in a same graph. (i.e., first run_conflict25 generates tables for full enc and just_output_layer, rcnn generator, now plot_conflict2 will plot these tables in a same graph)
 
 Conflict7: train data preprocessing to generate a train set where some sentences are blanked out.
 to run: THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python conflict7.py --train ../reviews.aspect1.train.txt.gz --max_epochs 5, this code is appended in conflict8
@@ -47,5 +50,8 @@ conflict23: load Rotten Tomatoes movie dataset, set evaluation and loss function
 
 conflict24: Can load full enc and rcnn gen part from (rcnn gen + rcnn enc initialized with full enc) and write the performance in a file.
 
-run_just_output_layer_gen_rt: I can train jointly just output layer gen + rcnn enc (initialized with full enc), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
+run_just_output_layer_rt: I can train jointly just output layer gen + rcnn enc (initialized with full enc), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
+
+run_conflict_25: load full rt encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (conflict24), just output layer (conflict25), run the experimens to collect/record result.
+
 
