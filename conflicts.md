@@ -42,7 +42,7 @@ run_conflict15: load union and original full encoder and (with no generator or w
 conflict18: geneartor of just_output_layer with input: average( word_embeddings(word_t-2,t-1,t,t+1,t+2)) neighboring info
 in contrast to the the simple word embedding of that word only (just_output_layer) and jointly train with an encoder. The genrator modeule can also be loaded (without the joint encoder) with different encoder (like full enc) afterwards (conflict20 and run_conflict10)
 
-conflict21: load IMDB movie dataset, set evaluation and loss function accordingly, to train full enc, and then records results of same experiemnts (full enc, different gen + full enc). Run by run_conflict21. Here the score is [0.0, 1,0] unlike conflict22 where there score is (0/1)
+conflict21: load IMDB movie dataset, set evaluation and loss function accordingly, to train full enc ori + blank out, and then records results of same experiemnts (full enc, different gen + full enc(ori or blank out). Run by run_conflict21. Here the score is [0.0, 1,0] unlike conflict22 where there score is (0/1). This file is similar to conflict8. 
 
 conflict22: load IMDB movie dataset, set evaluation and loss function accordingly, to train full enc, and then records results of same experiemnts (full enc, different gen + full enc). Run by run_conflict22. Here the score is (0/1) unlike conflict21 where there score is [0.0, 1,0]
 
@@ -54,4 +54,7 @@ run_just_output_layer_rt: I can train jointly just output layer gen + rcnn enc (
 
 run_conflict_25: load full rt encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (conflict24), just output layer (conflict25), run the experimens to collect/record result.
 
+run_rcnn_gen_imdb: I can train jointly rcnn gen + rcnn enc (initialized with full enc ori+union), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
+
+run_just_output_layer_imdb: I can train jointly just output layer gen + rcnn enc (initialized with full enc ori+union), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
 
