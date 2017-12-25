@@ -52,9 +52,10 @@ conflict24: Can load full enc and rcnn gen part from (rcnn gen + rcnn enc initia
 
 run_just_output_layer_rt: I can train jointly just output layer gen + rcnn enc (initialized with full enc), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
 
-run_conflict_25: load full rt encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (conflict24), just output layer (conflict25), run the experimens to collect/record result.
+run_conflict_25: load full rt encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (rcnn_gen_imdb.py), just output layerjust_output_layer_imdb.py), run the experimens to collect/record result.
 
 run_rcnn_gen_imdb: I can train jointly rcnn gen + rcnn enc (initialized with full enc ori+union), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
 
 run_just_output_layer_imdb: I can train jointly just output layer gen + rcnn enc (initialized with full enc ori+union), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
 
+run_conflict: load union and original full encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict25)  predictor geneartor like rcnn of tao lei (conflict26), just output layer (conflict27), run the experimens to collect/record result. this file similar to run_conflict15
