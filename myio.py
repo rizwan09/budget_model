@@ -6,7 +6,11 @@ import theano
 import numpy as np
 
 from nn import EmbeddingLayer
+
 from utils import say, load_embedding_iterator, load_glove_embedding_iterator
+
+from utils import say, load_embedding_iterator
+
 
 def read_rationales(path):
     data = [ ]
@@ -17,7 +21,9 @@ def read_rationales(path):
             data.append(item)
     return data
 
+
 def read_annotations(path, is_movie = False):
+
     data_x, data_y = [ ], [ ]
     fopen = gzip.open if path.endswith(".gz") else open
     with fopen(path) as fin:
@@ -25,11 +31,14 @@ def read_annotations(path, is_movie = False):
             y, sep, x = line.partition("\t")
             x, y = x.split(), y.split()
             if len(x) == 0: continue
+
             if not is_movie: 
                 y = np.asarray([ float(v) for v in y ], dtype = theano.config.floatX)
+
             else: 
                 x = ['.' if ww=='' else ww for w in x for ww in w.split('.') ]
                 y = np.asarray([ 1 if float(v)>0.5 else 0 for v in y ])
+
             data_x.append(x)
             data_y.append(y)
     say("{} examples loaded from {}\n".format(
@@ -63,6 +72,8 @@ def create_glove_embedding_layer(path, is_rt=False):
             is_glove = True
         )
     return embedding_layer
+
+ 
 
 def create_batches(x, y, batch_size, padding_id, sort=True):
     batches_x, batches_y = [ ], [ ]

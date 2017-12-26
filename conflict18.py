@@ -125,8 +125,13 @@ class Generator(object):
 
         # len*batch*1 
         #probs = output_layer.forward(h_final)
+<<<<<<< HEAD
         probs = output_layer.forward(embs)
         # probs = output_layer.forward(avg_embs)
+=======
+        # probs = output_layer.forward(embs)
+        probs = output_layer.forward(avg_embs)
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
     
 
         # len*batch
@@ -484,7 +489,11 @@ class Model(object):
         best_dev_e = 1e+2
         last_train_avg_cost = None
         last_dev_avg_cost = None
+<<<<<<< HEAD
         tolerance = 0.001#0.10 + 1e-3
+=======
+        tolerance = 0.10 + 1e-3
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
         dropout_prob = np.float64(args.dropout).astype(theano.config.floatX)
 
         for epoch_ in xrange(args.max_epochs ): # -50 when max_epochs  = 100 given
@@ -523,8 +532,13 @@ class Model(object):
                     mask = bx != padding_id
                     start_train_time = time.time()
                     cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2, avg_emb_gen, avg_1_6, avg_emb_middle = train_generator(bx, by)
+<<<<<<< HEAD
                     # if i == 0: print('avg embs: ' , avg_emb_gen[0:4, 0:1, 0:5], 'avg_1_6: ', avg_1_6[0:1,0:5], ' emb: ', emb[0:10, 0:1, 0:5], 'last avg: ', avg_emb_gen[-1, 0:1, 0:5], ' emb: ', emb[-3:, 0:1, 0:5] )
                     # exit()
+=======
+                    if i == 0: print('avg embs: ' , avg_emb_gen[0:4, 0:1, 0:5], 'avg_1_6: ', avg_1_6[0:1,0:5], ' emb: ', emb[0:10, 0:1, 0:5], 'last avg: ', avg_emb_gen[-1, 0:1, 0:5], ' emb: ', emb[-3:, 0:1, 0:5] )
+                    exit()
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 
                     k = len(by)
                     processed += k
@@ -557,11 +571,17 @@ class Model(object):
                         say("\nDev cost {} --> {}\n".format(
                                 last_dev_avg_cost, cur_dev_avg_cost
                             ))
+<<<<<<< HEAD
                 
                 if more:
                     more_counter += 1
                     print('MORE COUNTER: ', more_counter)
                     if more_counter<10: more = False
+=======
+                if more:
+                    more_counter += 1
+                    if more_counter<20: more = False
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
                 if more:
                     more_counter = 0
                     lr_val = lr_g.get_value()*0.5
@@ -596,7 +616,11 @@ class Model(object):
                                 for x in self.generator.params ])+"\n")
                 say("total encode time = {} total geneartor time = {} \n".format(total_encode_time, total_generate_time))
 
+<<<<<<< HEAD
                 if (epoch_ + 1 )% args.save_every ==0 :#and epoch_>0:
+=======
+                if epoch_ % args.save_every ==0 :#and epoch_>0:
+>>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
                     print 'saving model after epoch -', epoch_+1, ' file name: ', args.save_model +  str(epoch_)
                     self.save_model(args.save_model+str(epoch_), args)
 

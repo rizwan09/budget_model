@@ -216,6 +216,5 @@ def load_arguments():
     argparser.add_argument('--imdb', type= str, default ='../IMDB/aclImdb/', help = 'location of imdb train dev test dataset')
     argparser.add_argument('--rotten_tomatoes', type= str, default ='../ROTTEN_TOMATOES/', help = 'location of ROTTEN_TOMATOES train dev test dataset')
 
-
     args = argparser.parse_args()
     return args

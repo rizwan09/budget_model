@@ -29,3 +29,4 @@ def load_glove_embedding_iterator(path):
         model =  KeyedVectors.load_word2vec_format("glove/"+path, binary=False)#Word2Vec.load_word2vec_format(path, binary=False)
         pickle.dump(model, open('../'+path+'.p',"wb"))
     return model
+
