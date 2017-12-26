@@ -2,7 +2,6 @@
 import gzip
 import random
 import json
-
 import theano
 import numpy as np
 
@@ -26,9 +25,10 @@ def read_annotations(path, is_movie = False):
             y, sep, x = line.partition("\t")
             x, y = x.split(), y.split()
             if len(x) == 0: continue
-            if not is_movie: y = np.asarray([ float(v) for v in y ], dtype = theano.config.floatX)
+            if not is_movie: 
+                y = np.asarray([ float(v) for v in y ], dtype = theano.config.floatX)
             else: 
-                # print y
+                x = ['.' if ww=='' else ww for w in x for ww in w.split('.') ]
                 y = np.asarray([ 1 if float(v)>0.5 else 0 for v in y ])
             data_x.append(x)
             data_y.append(y)

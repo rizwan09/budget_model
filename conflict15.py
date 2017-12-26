@@ -834,8 +834,10 @@ class Model(object):
                             z = [ vz for vz,vm in zip(z,m) if vm ]
                             assert len(z) == len(reviews[cnt_t]["xids"])
                             x = reviews[cnt_t]
+                            # print x
                             idx = [ j for j, w in enumerate(x["x"]) if w in '.' ] + [len(x['x']) - 1]
                             # truez_intvals = x[str(args.aspect)]
+                            # print idx
                             begin = 0
                             for end in idx:
                                 slngth = end - begin + 1

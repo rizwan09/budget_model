@@ -347,12 +347,14 @@ class Model(object):
         self.nclasses = nclasses
         self.ready()
         flag = 0;
+        print (" loading encoder from ", path)
         for x,v in zip(self.encoder.params, eparams):
             # if(flag<5): 
             #     print 'encoder param: ',v
             x.set_value(v)
             flag+=1
         if(load_emb_only==0):
+            print (" loading gen from ", path)
             for x,v in zip(self.generator.params, gparams):
                 x.set_value(v)
 
@@ -402,7 +404,7 @@ class Model(object):
     #             np.zeros_like(eval(x).shape[0], eval(x).shape[1]).astype(theano.config.floatX)
     #         ))
 
-    def train(self, train, dev, test, rationale_data, trained_max_epochs = None):
+    def train(self, train, dev, test, rationale_data, trained_max_epochs = None, raw_text = None):
         args = self.args
         args.trained_max_epochs = self.trained_max_epochs = trained_max_epochs
         dropout = self.dropout
@@ -605,7 +607,7 @@ class Model(object):
                                 for x in self.encoder.params ])+"\n")
                 say("\t"+str([ "{:.2f}".format(np.linalg.norm(x.get_value(borrow=True))) \
                                 for x in self.generator.params ])+"\n")
-                # say("total encode time = {} total geneartor time = {} \n".format(total_encode_time, total_generate_time))
+                
 
                 # if (epoch_ + 1 )% args.save_every ==0 :#and epoch_>0:
                 if (epoch_ + 1 )% args.max_epochs ==0 :#and epoch_>0:
@@ -670,7 +672,7 @@ class Model(object):
 
 
                         test_obj, test_loss, test_diff, test_p1, test_accuracy, gtime, etime = self.evaluate_data(
-                            test_batches_x, test_batches_y, sample_generator, sample_encoder, sampling=True)
+                            test_batches_x, test_batches_y, sample_generator, sample_encoder, sampling=True, raw_text = raw_text)
                         say(("\t accuracy={:0.3f} "+ 
                                 "  p[1]g={:.2f},  gen time={}, enc time={}  test time={} \n").format(
                         test_accuracy,
@@ -682,11 +684,12 @@ class Model(object):
                         
 
 
-    def evaluate_data(self, batches_x, batches_y, eval_func_gen, eval_func, sampling=False):
+    def evaluate_data(self, batches_x, batches_y, eval_func_gen, eval_func, sampling=False, raw_text = None):
         padding_id = self.embedding_layer.vocab_map["<padding>"]
         tot_obj, tot_mse, tot_diff, p1, tot_a = 0.0, 0.0, 0.0, 0.0, 0.0
         generate_total_time = 0
         encode_total_time = 0
+        cnt_t = 0
         for bx, by in zip(batches_x, batches_y):
             if not sampling:
                 e, d = eval_func(bx, by)
@@ -694,6 +697,36 @@ class Model(object):
                 mask = bx != padding_id
                 start_generate_time = time.time()
                 bz = eval_func_gen(bx)
+                if raw_text:
+                    bz_t = bz.T
+                    mask_t = mask.T
+                    for bz_index in range(len(bz_t)):
+                        z = bz_t[bz_index]
+                        m = mask_t[bz_index]
+                        num_pad = len(m) - sum(m)
+
+                        z = [ vz for vz,vm in zip(z,m) if vm ]
+                        x = raw_text[cnt_t]
+                        # print 'x: ', x
+                        idx = [ j for j, w in enumerate(x) if w in '.' ] + [len(x) - 1]
+                        # print 'idx: ', idx
+                        begin = 0
+                        for end in idx:
+                            slngth = end - begin + 1
+                            # print 'slngth: ', slngth, 'z : ', z
+                            if(slngth<1): break
+                            ratnlngth = 1e-5+sum(z[begin:end+1])
+                            if((ratnlngth/slngth)>args.test_smaple_rate):
+                                l =len(bz_t[bz_index][num_pad+begin: num_pad+end+1])
+                                bz_t[bz_index][num_pad+begin: num_pad+end+1] = [1 for kkkk in range(l)]
+
+                            begin = end+1
+
+
+
+                        cnt_t+=1
+
+                    bz = bz_t.T
 
                 
                 # bz = np.ones_like(bx, dtype=theano.config.floatX)
@@ -845,8 +878,8 @@ def main():
     max_len = args.max_len
     
 
-    if args.train == 'rotten_tomatoes':
-        train_x, train_y = myio.read_annotations(args.rotten_tomatoes+'train.txt', is_movie = True)
+    if args.train == 'imdb':
+        train_x, train_y = myio.read_annotations(args.imdb+'train.txt', is_movie = True)
         # print 'train size: ',  len(train_x), train_x[0], train_y[1]
         if args.debug :
             len_ = len(train_x)*args.debug
@@ -855,25 +888,26 @@ def main():
             train_y = train_y[:len_]
         # print 'train in size: ',  len(train_x)
         # print 'train size: ',  len(train_x) , train_x[1:10], train_y[1:10],len(train_x[1])
-        train_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in train_x ]
+        train_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in train_x ]
         
-        dev_x, dev_y = myio.read_annotations(args.rotten_tomatoes+'dev.txt', is_movie = True)
+        dev_x, dev_y = myio.read_annotations(args.imdb+'dev.txt', is_movie = True)
         if args.debug :
             len_ = len(dev_x)*args.debug
             len_ = int(len_)
             dev_x = dev_x[:len_]
             dev_y = dev_y[:len_]
         print 'dev in size: ',  len(dev_x)
-        dev_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in dev_x ]
+        dev_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in dev_x ]
 
-        test_x, test_y = myio.read_annotations(args.rotten_tomatoes+'test.txt', is_movie = True)
+        test_x, test_y = myio.read_annotations(args.imdb+'test.txt', is_movie = True)
         if args.debug :
             len_ = len(test_x)*args.debug
             len_ = int(len_)
             test_x = test_x[:len_]
             test_y = test_y[:len_]
         print 'test size: ',  len(test_x)
-        test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
+        raw_text = test_x
+        test_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in test_x ]
    
         
 
@@ -882,7 +916,7 @@ def main():
 
         rationale_data = myio.read_rationales(args.load_rationale)
         for x in rationale_data:
-            x["xids"] = embedding_layer.map_to_ids(x["x"], is_rt=True)
+            x["xids"] = embedding_layer.map_to_ids(x["x"])
 
 
     #print 'in main: ', args.seed
@@ -912,7 +946,8 @@ def main():
                 (dev_x, dev_y) if args.dev else None,
                 (test_x, test_y),
                 rationale_data if args.load_rationale else None,
-                trained_max_epochs = args.trained_max_epochs
+                trained_max_epochs = args.trained_max_epochs,
+                raw_text = raw_text
             )
 
     if args.load_model and not args.dev and not args.train:
@@ -960,14 +995,15 @@ def main():
         # batching data
         padding_id = embedding_layer.vocab_map["<padding>"]
 
-        test_x, test_y = myio.read_annotations(args.rotten_tomatoes+'test.txt', is_movie = True)
+        test_x, test_y = myio.read_annotations(args.imdb+'test.txt', is_movie = True)
         if args.debug :
             len_ = len(test_x)*args.debug
             len_ = int(len_)
             test_x = test_x[:len_]
             test_y = test_y[:len_]
         print 'test size: ',  len(test_x)
-        test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
+        raw_text = test_x
+        test_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in test_x ]
    
         
         test = (test_x, test_y)
@@ -988,7 +1024,7 @@ def main():
 
 
             test_obj, test_loss, test_diff, test_p1, test_accuracy, gtime, etime = model.evaluate_data(
-                test_batches_x, test_batches_y, sample_generator, sample_encoder, sampling=True)
+                test_batches_x, test_batches_y, sample_generator, sample_encoder, sampling=True, raw_text = raw_text)
             ttime= time.time() - start_rational_time
             say(("\t accuracy={:0.3f} "+ 
                     "  p[1]g={:.2f},  gen time={}, enc time={}  test time={} \n").format(
