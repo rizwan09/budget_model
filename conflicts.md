@@ -44,19 +44,23 @@ in contrast to the the simple word embedding of that word only (just_output_laye
 
 conflict21: load IMDB movie dataset, set evaluation and loss function accordingly, to train full enc ori + blank out, and then records results of same experiemnts (full enc, different gen + full enc(ori or blank out). Run by run_conflict21. Here the score is [0.0, 1,0] unlike conflict22 where there score is (0/1). This file is similar to conflict8. 
 
-conflict22: load IMDB movie dataset, set evaluation and loss function accordingly, to train full enc, and then records results of same experiemnts (full enc, different gen + full enc). Run by run_conflict22. Here the score is (0/1) unlike conflict21 where there score is [0.0, 1,0]
+conflict22: load IMDB movie dataset, set evaluation and loss function accordingly, to train full enc, and then records results of same experiemnts (full enc, different gen + full enc). Run by run_conflict22. Here the score is (0/1) unlike conflict21 where there score is [0.0, 1,0]. This file is cross entropy loss related not required eventually, rather conflict21 is required. (not required eventualy)
 
-conflict23: load Rotten Tomatoes movie dataset, set evaluation and loss function accordingly, to train full enc, and then records results of same experiemnts (full enc, different gen + full enc). Run by run_conflict22. Here the score is (0/1).
+conflict23: load Rotten Tomatoes movie dataset, set evaluation and loss function accordingly, to train full enc, and then records results of same experiemnts (full enc, different gen + full enc). Run by run_conflict23. Here the score is (0/1). (not required eventualy)
 
-conflict24: Can load full enc and rcnn gen part from (rcnn gen + rcnn enc initialized with full enc) and write the performance in a file.
+conflict24: Can load full enc and rcnn gen part from (rcnn gen + rcnn enc initialized with full enc) on rt and write the performance in a file. (not required eventualy)
+
+
+run_rcnn_gen_rt: I can train jointly rcnn gen + rcnn enc, and later load only the rcnn gen part with the full enc from the other model by running rcnn_gen_rt.py on rt dataset. 
 
 run_just_output_layer_rt: I can train jointly just output layer gen + rcnn enc (initialized with full enc), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
 
-run_conflict_25: load full rt encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (rcnn_gen_imdb.py), just output layerjust_output_layer_imdb.py), run the experimens to collect/record result. similar to run_conflict10.
+run_conflict_25: load union and original full rt encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (rcnn_gen_rt.py), just output layerjust_output_layer_rt.py), run the experimens to collect/record result. similar to run_conflict10.
 
 run_rcnn_gen_imdb: I can train jointly rcnn gen + rcnn enc (initialized with full enc ori+union), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
 
 run_just_output_layer_imdb: I can train jointly just output layer gen + rcnn enc (initialized with full enc ori+union), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
 
-run_conflict26: load union and original full encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict25)  predictor geneartor like rcnn of tao lei (conflict26), just output layer (conflict27), run the experimens to collect/record result. this file similar to run_conflict15.
+run_conflict26: load union and original full imdb encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict28)  predictor geneartor like rcnn of tao lei (conflict26), just output layer (conflict27), run the experimens to collect/record result. this file similar to run_conflict15.
 
+run_conflict_28: load union and original full imdb encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (rcnn_gen_imdb.py), just output layerjust_output_layer_imdb.py) unlike run_conflict26, run the experimens to collect/record result. similar to run_conflict10 and run_conflict25.
