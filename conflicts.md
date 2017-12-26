@@ -58,4 +58,5 @@ run_rcnn_gen_imdb: I can train jointly rcnn gen + rcnn enc (initialized with ful
 
 run_just_output_layer_imdb: I can train jointly just output layer gen + rcnn enc (initialized with full enc ori+union), and later load only the rcnn gen part with the full enc from the other model from the output of this rcnn_gen.py
 
-run_conflict26: load union and original full encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict25)  predictor geneartor like rcnn of tao lei (conflict26), just output layer (conflict27), run the experimens to collect/record result. this file similar to run_conflict15
+run_conflict26: load union and original full encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict25)  predictor geneartor like rcnn of tao lei (conflict26), just output layer (conflict27), run the experimens to collect/record result. this file similar to run_conflict15.
+
