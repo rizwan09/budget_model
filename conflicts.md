@@ -66,3 +66,5 @@ run_conflict26: load union and original full imdb encoder and (with no generator
 run_conflict_28: load union and original full imdb encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (rcnn_gen_imdb.py), just output layerjust_output_layer_imdb.py) unlike run_conflict26, run the experimens to collect/record result. similar to run_conflict10 and run_conflict25.
 
 parse_result_n_parameter: parse rt outputfiles (jointly trained rcnn, just output layer gen + rcnn enc, initialaized with ori full rcnn enc) and collect/record the accuracies/performance.
+
+conflict29: Full_encoder training based on the union of different generator outputs on the sentiment analysis data
