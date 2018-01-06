@@ -67,4 +67,4 @@ run_conflict_28: load union and original full imdb encoder (conflict23) and (wit
 
 parse_result_n_parameter: parse rt outputfiles (jointly trained rcnn, just output layer gen + rcnn enc, initialaized with ori full rcnn enc) and collect/record the accuracies/performance.
 
-conflict29: Full_encoder training based on the union of different generator outputs on the sentiment analysis data
+conflict29: Encoder training based on the union of different generator outputs on the sentiment analysis data
