@@ -68,3 +68,6 @@ run_conflict_28: load union and original full imdb encoder (conflict23) and (wit
 parse_result_n_parameter: parse rt outputfiles (jointly trained rcnn, just output layer gen + rcnn enc, initialaized with ori full rcnn enc) and collect/record the accuracies/performance.
 
 conflict29: Encoder training based on the union of different generator outputs on the sentiment analysis data
+
+conflict30: geneartor of just_output_layer with input: concate( word_embeddings(word_t-2,t-1,t,t+1,t+2)) neighboring info
+in contrast to the the simple word embedding of that word only (just_output_layer or avg of neighboring in conflict18) and jointly train with an encoder. The genrator modeule can also be loaded (without the joint encoder) with different encoder (like full enc) afterwards like avg in conflict20 and avg called in run_conflict10.
