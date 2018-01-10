@@ -78,8 +78,8 @@ def get_test_sampled_data(args, sentence_level_sampling_after_recall = 0): #work
 
 def get_train_union_data(args):
     np.random.seed(seed=1111)
-    train_x, train_y = myio.read_annotations(args.train)
-    train_x_union, train_y_union  = myio.read_annotations(args.train)
+    train_x, train_y = myio.read_annotations(args.rotten_tomatoes+'train.txt', is_movie=True)
+    train_x_union, train_y_union  = myio.read_annotations(args.rotten_tomatoes+'train.txt', is_movie=True)
     len_train_x_ori = len(train_x_union)
 
     len_ = int(args.debug*len(train_x))
@@ -108,6 +108,7 @@ def get_train_union_data(args):
     # print train_x_union[0]
     # print train_x_union[len_]
     # print train_x_union[2*len_]
+    print 'returning : ', len(train_x_union), 'train instances'
     assert len(train_x_union) == (args.num_data+1)*len_
     return train_x_union, train_y_union
 
@@ -967,7 +968,7 @@ def main():
     
 
     if args.train == 'rotten_tomatoes':
-        train_x, train_y = myio.read_annotations(args.rotten_tomatoes+'train.txt', is_movie = True)
+        train_x, train_y = get_train_union_data(args)#(args.rotten_tomatoes+'train.txt', is_movie = True)
         # print 'train size: ',  len(train_x), train_x[0], train_y[1]
         if args.debug :
             len_ = len(train_x)*args.debug

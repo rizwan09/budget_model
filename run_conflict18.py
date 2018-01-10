@@ -1,18 +1,15 @@
 import os
 
-<<<<<<< HEAD
 lamda_1 = [0.000085, 0.000095, 0.0001, 0.000105,  0.00011, 0.000115,  0.00012,  0.00016, 0.0002, 0.00025, 0.0003, 0.00035, 0.0004 ]
 
 lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004 ]
 
 # lamda_1 = [ 0.00011, 0.000115,  0.00012,  0.00016]
-=======
-# lamda_1 = [0.000085, 0.000095, 0.0001, 0.000105,  0.00011, 0.000115,  0.00012,  0.00016, 0.0002, 0.00025, 0.0003, 0.00035, 0.0004 ]
 
 # lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004, 0.0005 ]
 
 lamda_1 = [ 0.0003]
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
+
 lamda_2 = [2, 1]
 
 
@@ -58,7 +55,7 @@ for t in types:
 						py_file = 'conflict18.py'
 
 						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz  --load_rationale ../annotations.json --aspect ' + str(aspect) + \
-<<<<<<< HEAD
+
 						' --dump ' + output_file + ' --sparsity ' + str(l_1) +' --coherent ' + str(l_2)+' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
 						+ ' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+model_file #+ ' --debug 0.001' 
 						
@@ -67,16 +64,7 @@ for t in types:
 						os.system(run_command)
 						print '\n\n\n'
 						# exit()
-=======
-						' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
-						+ ' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+model_file + ' --debug 0.001' 
-						
-						# run_command+= ' >> '+_type+model_file +'.txt'
-						print run_command 
-						os.system(run_command)
-						print '\n\n\n'
-						exit()
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
+
 	# exit()
 '''
 class Generator(object):

@@ -123,15 +123,10 @@ class Generator(object):
                 activation = sigmoid
             )
 
-        # len*batch*1 
-        #probs = output_layer.forward(h_final)
-<<<<<<< HEAD
-        probs = output_layer.forward(embs)
-        # probs = output_layer.forward(avg_embs)
-=======
+
         # probs = output_layer.forward(embs)
         probs = output_layer.forward(avg_embs)
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
+
     
 
         # len*batch

@@ -24,49 +24,38 @@ covered_percentage = []
 graph_data_file = '../graph_data/full_enc_ori_just_output_layer.txt'
 open(graph_data_file, 'w')
 
-<<<<<<< HEAD
+
 types = ['RCNN_RCNN','JUST_OUTPUT_LAYER','LINEAR_RCNN','AVG_LINEAR']
-=======
-types = ['RCNN_RCNN','JUST_OUTPUT_LAYER','LINEAR_RCNN']
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
+
 
 _type = '../RCNN_RCNN/CONFLICT8/'
 f = 0
 
 base = '../../Budgeted_attention_model/rcnn/code/rationale/'
-<<<<<<< HEAD
+
 gen_lr = {'JUST_OUTPUT_LAYER': 0.005, 'LINEAR_RCNN': 0.0005 , 'RCNN_RCNN': 0.0005, 'AVG_LINEAR': 0.005}
-=======
-gen_lr = {'JUST_OUTPUT_LAYER': 0.005, 'LINEAR_RCNN': 0.0005 , 'RCNN_RCNN': 0.0005}
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
+
 
 union = 'union_'
 # union = ''
 num_data = 5
 
 for t in types:
-<<<<<<< HEAD
+
 	
 	if(t!="AVG_LINEAR"):
 		continue
 	graph_data_file = '../graph_data/full_enc_sen_gen_'+union+t+'.txt'
 	open(graph_data_file, 'w')
-=======
-	graph_data_file = '../graph_data/full_enc_sen_gen_'+union+t+'.txt'
-	open(graph_data_file, 'w')
-	# if(t!="LINEAR_RCNN"):
-	# 	continue
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
+
 
 	for l_1 in lamda_1:
 		for l_2 in lamda_2:
 
 			path = base+t+'/Sampling/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-<<<<<<< HEAD
+
 			if(t=="AVG_LINEAR"):path = '../JUST_OUTPUT_LAYER/NEIGHBOR/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-=======
-			# if(t=="RCNN_RCNN"):path = '../RCNN_RCNN/Trained_MODELS/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(100)+'.txt.pkl.gz'
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
+
 			if(t=="RCNN_RCNN"): path = '../RCNN_RCNN/Trained_MODELS/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 			for dp in dropout:
 				
@@ -95,11 +84,9 @@ for t in types:
 							py_file = 'conflict16.py'
 						elif t=='RCNN_RCNN':
 							py_file = 'conflict15.py'
-<<<<<<< HEAD
+
 						elif t=='AVG_LINEAR':
 							py_file = 'conflict19.py'
-=======
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
 
 						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
 						' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
@@ -110,12 +97,9 @@ for t in types:
 						print run_command 
 						os.system(run_command)
 						print '\n\n\n'
-<<<<<<< HEAD
+
 						exit()
-=======
-						# exit()
->>>>>>> b2a76fce817641dd735110dfa30604eb8e4c0f75
-	# exit()
+
 
 
 

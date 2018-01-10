@@ -1,16 +1,22 @@
 import os
 
-lamda_1 = [0.000085, 0.000095, 0.0001, 0.000105,  0.00011, 0.000115, 0.00012, 0.00016, 0.0002, 0.00025, 0.0003, 0.00035, 0.0004]
-# lamda_1 = [0.00016, 0.0002, 0.00025, 0.0003, 0.00035, 0.0004] # for small 0.000085, 2 gru, markov, 
-# lamda_1 = [0.0003]#, 0.00006, 0.00005, 0.000065, 000075]
+lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004, 0.00045, 0.0005, 0.00055, 0.0006, 0.00065, 0.0007, 0.00075, 0.0008, 0.00085, 0.0009, 0.001, 0.001, 0.0001, -1, -2, -3]
+lamda_1 = lamda_1[::-1]
 
-# lamda_1 = [ 0.003, 0.005]
-# lamda_1 = [ 0.005]
-# lamda_2 = [  0.8, 1, 1.5, 0.5, 0.1]
-lamda_2 = [ 1, 2]
-# lamda_2 = [0.1]
-dropout = [0.2]
-dp = 0.2
+# lamda_1 = [0.001, 0.0001, -1, -2, -3]
+
+lamda_2 = [-4, -5, -3, -2, -1, -.5, -0.1, 0, 0.25, 0.75, 0.85, 0.95, -0.25, -0.75, -0.85, -0.95]#[  0.5]
+# lamda_2 = [0,1,-2,0.5, -3]
+
+
+
+
+
+
+
+
+dropout = [0.1]
+dp = 0.1
 trained_max_epochs = 0
 load_emb_only = 1
 max_epochs = 100
@@ -37,30 +43,21 @@ for l_1 in lamda_1:
 		for lr in [ 0.001]:
 			l='rcnn'
 			l2_reg=1e-6
-			d=128
-			batch_size=50
-			d2=128
-			if union!='':
-				assert lr == 0.001 ## change this
-				assert dp == 0.2 ## change this
-				assert d2 ==128 ## change this
-				assert d == 128 ## change this
-				assert batch_size==50 ## change this
-				# assert l2_reg == 1e-6
+			
 			### as we experiment with lstm for rotten tomatoes
-			load_model_file = 'model_'+l+'_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_l2_'+str(l2_reg)+ '_batch_'+str(batch_size)+'_d_'+str(d)+'_d2_'+str(d2)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+			load_model_file = 'model_'+l+'_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 			model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python just_output_layer_imdb.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --batch 50 -d 128 -d2 128 --layer '+l+' --train imdb --dev imdb --test imdb  --embedding glove.6B.300d_w_header.txt' + \
-				' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "JUST_OUTPUT_LAYER/MODELS/"+model_file \
+			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python just_output_layer_imdb.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --train imdb --dev imdb --test imdb  --embedding glove.6B.300d_w_header.txt' + \
+				' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "JUST_OUTPUT_LAYER/MODELS/"+union+model_file \
 				+ ' --load_model ' + _type +'MODELS/'+union+load_model_file + ' --load_gen_model ' + _type +'MODELS/'+union+load_model_file
 			
 			#run_command = 'python generator_fix.py --embedding word_vec.gz --load_rationale annotations.json --dump '+output_file+' --select_all ' +str(select_all)+ ' --aspect ' +str(aspect) +' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --load_model ' + 'model_new_generators/'+model_file #+ ' --graph_data_path '+ graph_data_file
 			
-			# run_command+= ' >> '+ _type+'JUST_OUTPUT_LAYER/'+union+model_file + '.txt' 	
+			run_command+= ' >> '+ _type+'JUST_OUTPUT_LAYER/'+union+model_file + '.txt' 	
 			print run_command
 			os.system(run_command)
 			print '\n\n\n'
-			exit()
+			# exit()
 
 
 
