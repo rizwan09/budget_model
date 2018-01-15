@@ -88,7 +88,7 @@ for t in types:
                         # elif t=='AVG_LINEAR':
                         #     py_file = 'conflict20.py'
 
-                        run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
+                        run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
                         ' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
                         + ' --learning_rate '+str(lr)  +' --load_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) \
                          + ' --load_gen_model '+path +' --graph_data_path '+ graph_data_file +' --sparsity '+str(l_1) +' --coherent '+str(l_2)
