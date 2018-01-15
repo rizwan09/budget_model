@@ -18,8 +18,49 @@ import myio
 import options
 from extended_layers import ExtRCNN, ExtLSTM, ZLayer, LZLayer
 
+
+from sklearn import svm
+
+
+
 total_encode_time = 0
 total_generate_time = 0
+
+
+
+def save_z(path, bz, masks):
+
+    # append file suffix
+    path = '../RCNN_RCNN/Z/'+path
+    if not path.endswith(".pkl.gz"):
+        if path.endswith(".pkl"):
+            path += ".gz"
+        else:
+            path += ".pkl.gz"
+
+    # output to path
+    with gzip.open(path, "wb") as fout:
+        
+        pickle.dump(
+            (bz,masks),
+            fout,
+            protocol = pickle.HIGHEST_PROTOCOL
+        )
+def load_z(path):
+
+    # append file suffix
+    path = '../RCNN_RCNN/Z/'+path
+    if not path.endswith(".pkl.gz"):
+        if path.endswith(".pkl"):
+            path += ".gz"
+        else:
+            path += ".pkl.gz"
+
+    # output to path
+    with gzip.open(path, "rb") as fin:
+        bz, masks  = pickle.load(fin)
+    return bz, masks
+
 
 def get_sparse(o_x):
     a = np.nonzero(o_x)
@@ -121,58 +162,68 @@ class Generator(object):
         size = (2*self.nneighbor+1)*n_e
 
 
-        output_layer = self.output_layer = Layer(
-                n_in = size,
-                n_out = 1,
-                activation = sigmoid
-            )
+        ##################
+        # we will train a scikitlearn svm.svc classifier to produce z as rcnn gen, we will train it for once not at every epoch:
+        # f = 'train_zs_model_sparsity_'+str(args.sparsity)+'_coherent_'+str(args.coherent)+'_dropout_'+str(args.dropout)+"_lr_"+str(args.learning_rate)+'.txt.pkl.gz'
+        
 
-        # len*batch*1 
+
+
+
+        ##################
+        # output_layer = self.output_layer = Layer(
+        #         n_in = size,
+        #         n_out = 1,
+        #         activation = sigmoid
+        #     )
+
+        # # len*batch*1 
+        # # probs = output_layer.forward(cat_embs)
         # probs = output_layer.forward(cat_embs)
-        probs = output_layer.forward(cat_embs)
     
 
-        # len*batch
-        probs2 = self.probs2 = probs.reshape(x.shape)
-        if self.args.seed is not None: self.MRG_rng = MRG_RandomStreams(self.args.seed)
-        else: self.MRG_rng = MRG_RandomStreams()
-        z_pred = self.z_pred = T.cast(self.MRG_rng.binomial(size=probs2.shape, p=probs2), theano.config.floatX) #"int8")
+        # # len*batch
+        # probs2 = self.probs2 = probs.reshape(x.shape)
+        # if self.args.seed is not None: self.MRG_rng = MRG_RandomStreams(self.args.seed)
+        # else: self.MRG_rng = MRG_RandomStreams()
+        # z_pred = self.z_pred = T.cast(self.MRG_rng.binomial(size=probs2.shape, p=probs2), theano.config.floatX) #"int8")
 
-        # we are computing approximated gradient by sampling z;
-        # so should mark sampled z not part of the gradient propagation path
-        #
+        # # we are computing approximated gradient by sampling z;
+        # # so should mark sampled z not part of the gradient propagation path
+        # #
 
 
-        z_pred = self.z_pred = theano.gradient.disconnected_grad(z_pred)
-        #self.sample_updates = sample_updates
-        print "z_pred", z_pred.ndim
+        z_pred = self.z_pred = 0#theano.gradient.disconnected_grad(z_pred)
+        # #self.sample_updates = sample_updates
+        # print "z_pred", z_pred.ndim
 
-        z2 = z_pred.dimshuffle((0,1,"x"))
-        logpz = - T.nnet.binary_crossentropy(probs, z2) * masks
-        logpz = self.logpz = logpz.reshape(x.shape)
-        probs = self.probs = probs.reshape(x.shape)
+        # z2 = z_pred.dimshuffle((0,1,"x"))
+        # logpz = - T.nnet.binary_crossentropy(probs, z2) * masks
+        logpz = self.logpz = 0#logpz.reshape(x.shape)
+        probs = self.probs = 0#probs.reshape(x.shape)
 
         # batch
-        z = z_pred
-        self.zsum = T.sum(z, axis=0, dtype=theano.config.floatX)
-        self.zdiff = T.sum(T.abs_(z[1:]-z[:-1]), axis=0, dtype=theano.config.floatX)
+        z = 0 #z_pred
+        self.zsum = 0#T.sum(z, axis=0, dtype=theano.config.floatX)
+        self.zdiff = 0#T.sum(T.abs_(z[1:]-z[:-1]), axis=0, dtype=theano.config.floatX)
 
         params = self.params = [ ]
-        for l in layers + [ output_layer ]:
-            for p in l.params:
-                params.append(p)
+        # for l in layers + [ output_layer ]:
+        #     for p in l.params:
+        #         params.append(p)
         nparams = sum(len(x.get_value(borrow=True).ravel()) \
                                         for x in params)
         say("total # parameters: {}\n".format(nparams))
 
-        l2_cost = None
-        for p in params:
-            if l2_cost is None:
-                l2_cost = T.sum(p**2)
-            else:
-                l2_cost = l2_cost + T.sum(p**2)
-        l2_cost = l2_cost * args.l2_reg
-        self.l2_cost = l2_cost
+
+        # l2_cost = None
+        # for p in params:
+        #     if l2_cost is None:
+        #         l2_cost = T.sum(p**2)
+        #     else:
+        #         l2_cost = l2_cost + T.sum(p**2)
+        # l2_cost = l2_cost * args.l2_reg
+        self.l2_cost = 0 #l2_cost
         #say("finish generating : {}\n".format(time.time()-start_generate_time))
         #total_generate_time += time.time()-start_generate_time
 
@@ -198,7 +249,7 @@ class Encoder(object):
         # len*batch
         x = generator.x
         z = generator.z_pred
-        z = z.dimshuffle((0,1,"x"))
+        # z = z.dimshuffle((0,1,"x"))
 
         # batch*nclasses
         y = self.y = T.fmatrix()
@@ -237,25 +288,25 @@ class Encoder(object):
         pooling = args.pooling
         lst_states = [ ]
         h_prev = embs
-        for l in layers:
-            # len*batch*n_d
-            h_next = l.forward_all(h_prev, z)
-            if pooling:
-                # batch * n_d
-                masked_sum = T.sum(h_next * masks, axis=0)
-                lst_states.append(masked_sum/cnt_non_padding) # mean pooling
-            else:
-                lst_states.append(h_next[-1]) # last state
-            h_prev = apply_dropout(h_next, dropout)
+        # for l in layers:
+        #     # len*batch*n_d
+        #     h_next = l.forward_all(h_prev, z)
+        #     if pooling:
+        #         # batch * n_d
+        #         masked_sum = T.sum(h_next * masks, axis=0)
+        #         lst_states.append(masked_sum/cnt_non_padding) # mean pooling
+        #     else:
+        #         lst_states.append(h_next[-1]) # last state
+        #     h_prev = apply_dropout(h_next, dropout)
 
         if args.use_all:
             size = depth * n_d
-            # batch * size (i.e. n_d*depth)
-            h_final = T.concatenate(lst_states, axis=1)
+        #     # batch * size (i.e. n_d*depth)
+        #     h_final = T.concatenate(lst_states, axis=1)
         else:
             size = n_d
-            h_final = lst_states[-1]
-        h_final = apply_dropout(h_final, dropout)
+        #     h_final = lst_states[-1]
+        # h_final = apply_dropout(h_final, dropout)
 
         output_layer = self.output_layer = Layer(
                 n_in = size,
@@ -263,32 +314,32 @@ class Encoder(object):
                 activation = sigmoid
             )
 
-        # batch * nclasses
-        preds = self.preds = output_layer.forward(h_final)
+        # # batch * nclasses
+        # preds = self.preds = output_layer.forward(h_final)
 
-        # batch
-        loss_mat = self.loss_mat = (preds-y)**2
+        # # batch
+        # loss_mat = self.loss_mat = (preds-y)**2
 
-        pred_diff = self.pred_diff = T.mean(T.max(preds, axis=1) - T.min(preds, axis=1))
+        # pred_diff = self.pred_diff = T.mean(T.max(preds, axis=1) - T.min(preds, axis=1))
 
-        if args.aspect < 0:
-            loss_vec = T.mean(loss_mat, axis=1)
-        else:
-            assert args.aspect < self.nclasses
-            loss_vec = loss_mat[:,args.aspect]
-        self.loss_vec = loss_vec
+        # if args.aspect < 0:
+        #     loss_vec = T.mean(loss_mat, axis=1)
+        # else:
+        #     assert args.aspect < self.nclasses
+        #     loss_vec = loss_mat[:,args.aspect]
+        # self.loss_vec = loss_vec
 
-        zsum = generator.zsum
-        zdiff = generator.zdiff
-        logpz = generator.logpz
+        # zsum = generator.zsum
+        # zdiff = generator.zdiff
+        # logpz = generator.logpz
 
-        coherent_factor = args.sparsity * args.coherent
-        loss = self.loss = T.mean(loss_vec)
-        sparsity_cost = self.sparsity_cost = T.mean(zsum) * args.sparsity + \
-                                             T.mean(zdiff) * coherent_factor
-        cost_vec = loss_vec + zsum * args.sparsity + zdiff * coherent_factor
-        cost_logpz = T.mean(cost_vec * T.sum(logpz, axis=0))
-        self.obj = T.mean(cost_vec)
+        # coherent_factor = args.sparsity * args.coherent
+        # loss = self.loss = T.mean(loss_vec)
+        # sparsity_cost = self.sparsity_cost = T.mean(zsum) * args.sparsity + \
+        #                                      T.mean(zdiff) * coherent_factor
+        # cost_vec = loss_vec + zsum * args.sparsity + zdiff * coherent_factor
+        # cost_logpz = T.mean(cost_vec * T.sum(logpz, axis=0))
+        # self.obj = T.mean(cost_vec)
 
         params = self.params = [ ]
         for l in layers + [ output_layer ]:
@@ -298,18 +349,18 @@ class Encoder(object):
                                         for x in params)
         say("total # parameters: {}\n".format(nparams))
 
-        l2_cost = None
-        for p in params:
-            if l2_cost is None:
-                l2_cost = T.sum(p**2)
-            else:
-                l2_cost = l2_cost + T.sum(p**2)
-        l2_cost = l2_cost * args.l2_reg
-        self.l2_cost = l2_cost
+        # l2_cost = None
+        # for p in params:
+        #     if l2_cost is None:
+        #         l2_cost = T.sum(p**2)
+        #     else:
+        #         l2_cost = l2_cost + T.sum(p**2)
+        # l2_cost = l2_cost * args.l2_reg
+        self.l2_cost = 0#l2_cost
 
-        self.cost_g = cost_logpz * 10 + generator.l2_cost
-        self.cost_g = (self.generator.nneighbor*2+1)*self.cost_g
-        self.cost_e = loss * 10 + l2_cost
+        self.cost_g = None#cost_logpz * 10 + generator.l2_cost
+        self.cost_g = None#(self.generator.nneighbor*2+1)*self.cost_g
+        self.cost_e = None#loss * 10 + l2_cost
         #say("finish encoding : {}\n".format(time.time()-start_encode_time))
         #total_encode_time += time.time()-start_encode_time
 
@@ -334,6 +385,7 @@ class Model(object):
         self.y = self.encoder.y
         self.z = self.generator.z_pred
         self.word_embs= self.generator.word_embs
+        self.cat_embs= self.generator.cat_embs
         self.params = self.encoder.params + self.generator.params
 
         #assert len(self.x) == len(self.z)
@@ -425,61 +477,67 @@ class Model(object):
         say("{:.2f}s to create training batches\n\n".format(
                 time.time()-start_time
             ))
-        updates_e, lr_e, gnorm_e = create_optimization_updates(
-                               cost = self.encoder.cost_e,
-                               params = self.encoder.params,
-                               method = args.learning,
-                               beta1 = args.beta1,
-                               beta2 = args.beta2,
-                               lr = args.learning_rate
-                        )[:3]
+        # updates_e, lr_e, gnorm_e = create_optimization_updates(
+        #                        cost = self.encoder.cost_e,
+        #                        params = self.encoder.params,
+        #                        method = args.learning,
+        #                        beta1 = args.beta1,
+        #                        beta2 = args.beta2,
+        #                        lr = args.learning_rate
+        #                 )[:3]
 
 
-        updates_g, lr_g, gnorm_g = create_optimization_updates(
-                               cost = self.encoder.cost_g,
-                               params = self.generator.params,
-                               method = args.learning,
-                               beta1 = args.beta1,
-                               beta2 = args.beta2,
-                               lr = args.learning_rate
-                        )[:3]
+        # updates_g, lr_g, gnorm_g = create_optimization_updates(
+        #                        cost = self.encoder.cost_g,
+        #                        params = self.generator.params,
+        #                        method = args.learning,
+        #                        beta1 = args.beta1,
+        #                        beta2 = args.beta2,
+        #                        lr = args.learning_rate
+        #                 )[:3]
 
-        sample_generator = theano.function(
+        # sample_generator = theano.function(
+        #         inputs = [ self.x ],
+        #         outputs = self.z,
+        #         #updates = self.generator.sample_updates
+        #     )
+
+        # get_loss_and_pred = theano.function(
+        #         inputs = [ self.x, self.y ],
+        #         outputs = [ self.encoder.loss_vec, self.encoder.preds, self.z ],
+        #         #updates = self.generator.sample_updates
+        #     )
+
+        # eval_generator = theano.function(
+        #         inputs = [ self.x, self.y ],
+        #         outputs = [ self.z, self.encoder.obj, self.encoder.loss,
+        #                         self.encoder.pred_diff ],
+        #         #updates = self.generator.sample_updates
+        #     )
+        # sample_generator = theano.function(
+        #         inputs = [ self.x ],
+        #         outputs = self.z,
+        #         #updates = self.generator.sample_updates
+        #     )
+        sample_generator_embs = theano.function(
                 inputs = [ self.x ],
-                outputs = self.z,
+                outputs = [self.word_embs, self.cat_embs],
                 #updates = self.generator.sample_updates
             )
+        
+        # sample_encoder = theano.function(
+        #         inputs = [ self.x, self.y, self.z],
+        #         outputs = [ self.encoder.obj, self.encoder.loss,
+        #                         self.encoder.pred_diff],
+        #         #updates = self.generator.sample_updates
+        #     )
 
-        get_loss_and_pred = theano.function(
-                inputs = [ self.x, self.y ],
-                outputs = [ self.encoder.loss_vec, self.encoder.preds, self.z ],
-                #updates = self.generator.sample_updates
-            )
-
-        eval_generator = theano.function(
-                inputs = [ self.x, self.y ],
-                outputs = [ self.z, self.encoder.obj, self.encoder.loss,
-                                self.encoder.pred_diff ],
-                #updates = self.generator.sample_updates
-            )
-        sample_generator = theano.function(
-                inputs = [ self.x ],
-                outputs = self.z,
-                #updates = self.generator.sample_updates
-            )
-        sample_encoder = theano.function(
-                inputs = [ self.x, self.y, self.z],
-                outputs = [ self.encoder.obj, self.encoder.loss,
-                                self.encoder.pred_diff],
-                #updates = self.generator.sample_updates
-            )
-
-        train_generator = theano.function(
-                inputs = [ self.x, self.y ],
-                outputs = [ self.encoder.obj, self.encoder.loss, \
-                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2, self.generator.cat_embs], #, self.generator.cat_1_6, self.generator.cat_emb_middle],
-                updates =  updates_g.items()#+ updates_g.items() #+ self.generator.sample_updates,
-            )
+        # train_generator = theano.function(
+        #         inputs = [ self.x, self.y ],
+        #         outputs = [ self.encoder.obj, self.encoder.loss, \
+        #                         self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2, self.generator.cat_embs], #, self.generator.cat_1_6, self.generator.cat_emb_middle],
+        #         updates =  updates_g.items()#+ updates_g.items() #+ self.generator.sample_updates,
+        #     )
 
         
 
@@ -512,6 +570,74 @@ class Model(object):
                 
             start_train_generate = time.time()
             more_counter = 0
+
+
+
+            f = 'train_zs_model_sparsity_'+str(args.sparsity)+'_coherent_'+str(args.coherent)+'_dropout_'+str(args.dropout)+"_lr_"+str(args.learning_rate)+'.txt.pkl.gz'
+            zs2, masks2 = load_z(f)
+            z=[]
+
+            for i in range(len(zs2)):
+                z.append(zs2[i].flat)
+            z2=np.hstack(z)
+
+            x=[]
+            x2=[]
+            N = len(train_batches_x)
+
+            for i in xrange(N):
+                bx, by = train_batches_x[i], train_batches_y[i]
+                ebx, cbx = sample_generator_embs(bx)
+                for (b,b2) in zip(ebx,cbx):
+                    for (c,c2) in zip(b,b2):
+                        x.append(c)
+                        x2.append(c2)
+
+
+
+            
+
+
+
+
+            clf = svm.LinearSVC()
+            clf.fit(x,z2)
+            score = clf.score(x,z2)
+            print score
+
+
+            clf = svm.LinearSVC()
+            clf.fit(x2,z2)
+            score = clf.score(x2,z2)
+            print score
+
+            exit()
+
+
+            if dev:
+                self.dropout.set_value(0.0)
+                start_dev_time = time.time()
+                dev_obj, dev_loss, dev_diff, dev_p1 = self.evaluate_data(
+                        dev_batches_x, dev_batches_y, sample_encoder, sampling=True)
+                self.dropout.set_value(dropout_prob)
+                say("dev evaluate data time: {} \n".format(time.time() - start_dev_time))
+                cur_dev_cat_cost = dev_obj
+                
+
+                # mask = bx != padding_id
+                # start_train_time = time.time()
+                # cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g, probs2, cat_emb_gen = sample(bx, by)
+
+                # k = len(by)
+                # processed += k
+                # train_cost += cost
+                # train_loss += loss
+                # train_sparsity_cost += sparsity_cost
+                # p1 += np.sum(bz*mask) / (np.sum(mask)+1e-8)
+
+
+
+            more = False
             while more:
                 processed = 0
                 train_cost = 0.0

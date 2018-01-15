@@ -2,15 +2,15 @@ import os
 
 lamda_1 = [0.000085, 0.000095, 0.0001, 0.000105,  0.00011, 0.000115,  0.00012,  0.00016, 0.0002, 0.00025, 0.0003, 0.00035, 0.0004 ]
 
-lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004 ]
+# lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004 ]
 
 # lamda_1 = [ 0.00011, 0.000115,  0.00012,  0.00016]
 
-# lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004, 0.0005 ]
+# lamda_1 = [ 0.0003]#, 0.00025, 0.0003, 0.00035, 0.0004, 0.0005 ]
 
-lamda_1 = [ 0.0003]
+# lamda_1 = lamda_1[::-1]
 
-lamda_2 = [2, 1]
+lamda_2 = [2,1]
 
 
 
@@ -29,7 +29,7 @@ covered_percentage = []
 graph_data_file = '../graph_data/full_enc_ori_just_output_layer.txt'
 open(graph_data_file, 'w')
 
-types = ['CONCATE_NEIGHBOR']
+types = ['DUMMY_NEIGHBOR']
 
 _type = '../JUST_OUTPUT_LAYER/CONCATE_NEIGHBOR/'
 f = 0
@@ -45,18 +45,18 @@ for t in types:
 		for l_2 in lamda_2:
 
 			for dp in dropout:
-				
-				for lr in [0.005]:#[ 0.0005, 0.005, 0.0001]:#to train gen with lr of 'JUST_OUTPUT_LAYER': 0.005
+				# if l_1==0.0002: return
+				for lr in [0.008]:#[ 0.0005, 0.005, 0.0001]:#to train gen with lr of 'JUST_OUTPUT_LAYER': 0.005
 					for select_all in [-1]:#[0.1,0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
 
 						model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-						
+						model_file_enc = '../RCNN_RCNN/CONFLICT8/MODELS/model_sparsity_'+str(0)+'_coherent_'+str(0)+'_dropout_'+str(0.2)+"_lr_"+str(0.008)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 						
 						py_file = 'conflict30.py'
 
-						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz  --load_rationale ../annotations.json --aspect ' + str(aspect) + \
+						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz  --load_rationale ../annotations.json --aspect ' + str(aspect) + \
 						' --dump ' + output_file + ' --sparsity ' + str(l_1) +' --coherent ' + str(l_2)+' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
-						+ ' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+model_file #+ ' --debug 0.001' 
+						+ ' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+model_file #+ ' --load_model ' +  model_file_enc +' --load_emb_only 1'
 						
 						# run_command+= ' >> '+_type+model_file +'.txt'
 						print run_command 
