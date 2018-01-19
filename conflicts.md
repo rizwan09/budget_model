@@ -71,3 +71,5 @@ conflict29: Encoder training based on the union of different generator outputs o
 
 conflict30: geneartor of just_output_layer with input: concate( word_embeddings(word_t-2,t-1,t,t+1,t+2)) neighboring info
 in contrast to the the simple word embedding of that word only (just_output_layer or avg of neighboring in conflict18) and jointly train with an encoder. The genrator modeule can also be loaded (without the joint encoder) with different encoder (like full enc) afterwards like avg in conflict20 and avg called in run_conflict10.
+
+conflict33: train an enc on the union of word selected by diefferent generators. 
