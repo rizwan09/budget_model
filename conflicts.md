@@ -79,9 +79,9 @@ conflict34: train an enc on the union of word selected by diefferent generators 
 
 run_conflict35: load union words enc and just out put / may be rcnn as well to record performances.
 
-conflcit 36, 37: Save generator outputs on rt data
+conflcit 36, 37: Save generator outputs on rt data 
 
-conflict38: train an enc on the union of word selected by diefferent generators loaded from the saved ouputs from conflcit 36, 37 on rt. this is same as (conflci 34)
+conflict38: train an enc on the union of word selected by diefferent generators loaded from the saved ouputs from conflcit 36, 37 on rt. this is same as (conflci 34) this union does not incluse sparsity - values but in run_conflcit39 it may be included.
 
 run_conflict39: load union words enc and just out put / may be rcnn as well to record performances on rt. this is same as (conflci 35)
 
