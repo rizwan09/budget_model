@@ -462,7 +462,10 @@ class Model(object):
             else: path += ".pkl.gz"
 
         with gzip.open(path, "rb") as fin:
-            eparams, gparams, nclasses, args  = pickle.load(fin)
+            if 'union_words_' not in path: 
+                eparams, gparams, nclasses, args  = pickle.load(fin)
+            else:
+                eparams, nclasses, args  = pickle.load(fin)
 
         # construct model/network using saved configuration
         #self.args = args

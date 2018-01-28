@@ -63,7 +63,7 @@ for l_1 in lamda_1:
 
 			load_model_file = 'model_'+l+'_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 			model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python rcnn_gen_imdb.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --train imdb --dev imdb --test imdb  --embedding glove.6B.300d_w_header.txt' + \
+			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python rcnn_gen_imdb.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --train imdb --dev imdb --test imdb  --embedding glove/glove.6B.300d_w_header.txt' + \
 				' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "RCNN_RCNN/MODELS/"+union+model_file \
 				+ ' --load_model ' + _type +'MODELS/'+union+load_model_file + ' --load_gen_model ' + _type +'MODELS/'+union+load_model_file
 			

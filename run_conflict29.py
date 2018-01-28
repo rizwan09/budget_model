@@ -50,22 +50,23 @@ for t in types:
 			path0 = base+'/Sampling/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 
 			
-			if(t=="AVG_LINEAR"): path = '../JUST_OUTPUT_LAYER/NEIGHBOR/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+			# if(t=="AVG_LINEAR"): path = '../JUST_OUTPUT_LAYER/NEIGHBOR/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 
-			if(t=="RCNN_RCNN"): path = '../RCNN_RCNN/Trained_MODELS/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+			# if(t=="RCNN_RCNN"): path = '../RCNN_RCNN/Trained_MODELS/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 			for dp in dropout:
 				
-				for lr in [0.005]:#[ 0.0005, 0.005, 0.0001]:
+				for lr in [0.008]:#[ 0.0005, 0.005, 0.0001]:
 					for select_all in [-1]:#[0.1,0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
 
 						model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-						model_file_enc = '../RCNN_RCNN/CONFLICT8/model_sparsity_'+str(0)+'_coherent_'+str(0)+'_dropout_'+str(0.2)+"_lr_"+str(0.008)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-						
+						model_file_enc = '../RCNN_RCNN/CONFLICT8/MODELS/model_sparsity_'+str(0)+'_coherent_'+str(0)+'_dropout_'+str(0.2)+"_lr_"+str(0.008)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+						path = '../RCNN_RCNN/Trained_MODELS/MODELS/model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(gen_lr['RCNN_RCNN'])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+# 			
 
 						py_file = 'conflict29.py'
-						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +'  --embedding ../word_vec.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
+						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +'  --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
 						' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
-						+ ' --learning_rate '+str(lr)  +' --load_model ' + model_file_enc\
+						+ ' --learning_rate '+str(lr)  +' --load_model ' + path0\
 						 + ' --load_gen_model '+path0 + ' --save_model '	+ _type +'MODELS/'+union+model_file	 \
 						 +' --sparsity '+ str(l_1) + ' --coherent '+str(l_2)		
 						# run_command+= ' >> '+_type+union+ model_file +'.txt'

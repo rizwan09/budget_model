@@ -20,13 +20,14 @@ def load_embedding_iterator(path):
                 vals = np.array([ float(x) for x in parts[1:] ])
                 yield word, vals
 
-def load_glove_embedding_iterator(path):
+def load_glove_embedding_iterator(path, dim=300):
     ########### casching the word similarity model (GLOVE), loading  to gensim ###################
     model = None
     if(os.path.isfile('../'+path+".p")):
-        model=pickle.load(open('../'+path+'.p','rb'))
+        model=pickle.load(open('../'+path.split("/")[-1]+'.p','rb'))
     else:
-        model =  KeyedVectors.load_word2vec_format("glove/"+path, binary=False)#Word2Vec.load_word2vec_format(path, binary=False)
+        
+        model =  KeyedVectors.load_word2vec_format(path, binary=False)#Word2Vec.load_word2vec_format(path, binary=False)
         pickle.dump(model, open('../'+path+'.p',"wb"))
     return model
 

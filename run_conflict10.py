@@ -4,8 +4,8 @@ lamda_1 = [0.000085, 0.000095, 0.0001, 0.000105,  0.00011, 0.000115,  0.00012,  
 
 # lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004, 0.0005 ]
 
-# lamda_1 = [ 0.0003]
-lamda_2 = [2, 1]
+# lamda_1 = [ 0.00016]
+lamda_2 = [2,1]
 
 
 
@@ -21,12 +21,12 @@ debug = 1
 select_all = 1
 output_file = 'rough2_new_gen_outputs_'+"linear_rcnn_0.01"+'.json'
 covered_percentage = []
-graph_data_file = '../graph_data/full_enc_ori_just_output_layer.txt'
+graph_data_file = '../graph_data/rough.txt'
 open(graph_data_file, 'w')
 
 
 types = ['RCNN_RCNN','JUST_OUTPUT_LAYER','LINEAR_RCNN', 'AVG_LINEAR']
-
+types = ['JUST_OUTPUT_LAYER','RCNN_RCNN']
 
 _type = '../RCNN_RCNN/CONFLICT8/'
 f = 0
@@ -36,15 +36,15 @@ base = '../../Budgeted_attention_model/rcnn/code/rationale/'
 gen_lr = {'JUST_OUTPUT_LAYER': 0.005, 'LINEAR_RCNN': 0.0005 , 'RCNN_RCNN': 0.0005, 'AVG_LINEAR':0.005}
 
 union = 'union_'
-union = ''
-num_data = 0
+# union = ''
+num_data = 5
 
 for t in types:
 
 	
 	if(t!="JUST_OUTPUT_LAYER"):
 		continue
-	graph_data_file = '../graph_data/rough_'+union+t+'.txt'
+	graph_data_file = '../graph_data/full_enc_ori_'+union+t+'.txt'
 	open(graph_data_file, 'w')
 
 	for l_1 in lamda_1:
@@ -90,7 +90,7 @@ for t in types:
 						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
 						' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
 						+ ' --learning_rate '+str(lr)  +' --load_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) \
-						 + ' --load_gen_model '+path +' --graph_data_path '+ graph_data_file 
+						 + ' --load_gen_model '+path +' --graph_data_path '+ graph_data_file +' --sparsity '+str(l_1) +' --coherent '+str(l_2)
 						
 						# run_command+= ' >> '+_type+union+ model_file +'.txt'
 						print run_command 

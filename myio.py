@@ -61,9 +61,9 @@ def create_embedding_layer(path):
         )
     return embedding_layer
 
-def create_glove_embedding_layer(path, is_rt=False):
+def create_glove_embedding_layer(path, is_rt=False, dim = 300):
     embedding_layer = EmbeddingLayer(
-            n_d = 300,
+            n_d = dim,
             vocab = [ "<unk>", "<padding>" ],
             embs = load_glove_embedding_iterator(path),
             oov = "<unk>",

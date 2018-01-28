@@ -4,13 +4,13 @@ lamda_1 = [0.000085, 0.000095, 0.0001, 0.000105,  0.00011, 0.000115,  0.00012,  
 
 # lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004, 0.0005 ]
 
-lamda_1 = [ 0.00016]
+# lamda_1 = [ 0.00016]
 lamda_2 = [1,2]
 
 
 
 
-dropout = [ 0.1]
+dropout = [ 0.2]
 # dp = 0.1
 trained_max_epochs = 0
 
@@ -19,6 +19,10 @@ max_epochs = 100
 aspect = 1
 debug = 1
 select_all = 1
+
+batch = 10
+
+
 output_file = 'rough2_new_gen_outputs_'+"linear_rcnn_0.01"+'.json'
 covered_percentage = []
 graph_data_file = '../graph_data/rough.txt'
@@ -42,8 +46,8 @@ num_data = 0
 for t in types:
 
     
-    if(t!="RCNN_RCNN"):
-        continue
+    # if(t!="JUST_OUTPUT_LAYER"):
+    #     continue
     graph_data_file = '../graph_data/rough_'+union+t+'.txt'
     open(graph_data_file, 'w')
 
@@ -66,7 +70,7 @@ for t in types:
                             lr = 0.0001
                             assert num_data>0
 
-                        model_file = 'model_sparsity_'+str(0)+'_coherent_'+str(0)+'_dropout_'+str(0.2)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+                        model_file = 'model_sparsity_'+str(0)+'_coherent_'+str(0)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
                         # load_model_file = _type+'MODELS/'+model_file + str(trained_max_epochs)
                         load_model_file  =''
                         if num_data>0:
@@ -74,30 +78,31 @@ for t in types:
                             assert trained_max_epochs !=95
                             assert load_model_file == ''
                             assert dp == 0.3
-                            assert lr == 0.0001
+                            # assert lr == 0.0001
                         # else:
                         #   assert load_model_file != ''
                         # if t=='LINEAR_RCNN':
                         #     py_file = 'conflict12.py'
-                        # elif t=='JUST_OUTPUT_LAYER':
-                            # py_file = 'conflict11.py'
+                        
                         if t=='RCNN_RCNN':
-                            # py_file = 'conflict31.py'
+                            py_file = 'conflict31.py'
+                            # py_file = 'conflict32.py'
+                        elif t=='JUST_OUTPUT_LAYER':
                             py_file = 'conflict32.py'
 
                         # elif t=='AVG_LINEAR':
                         #     py_file = 'conflict20.py'
-
+                        lr = 0.008
                         run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python '+ py_file  +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
-                        ' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
+                        ' --dump ' + output_file + ' --dropout '+  str(0.1) +' --debug '+ str(debug) +' --select_all ' +str(select_all) \
                         + ' --learning_rate '+str(lr)  +' --load_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) \
-                         + ' --load_gen_model '+path +' --graph_data_path '+ graph_data_file +' --sparsity '+str(l_1) +' --coherent '+str(l_2)
+                         + ' --load_gen_model '+path +' --graph_data_path '+ graph_data_file +' --sparsity '+str(l_1) +' --coherent '+str(l_2)+ ' --batch '+str(batch) + ' --batch '+ str(10)
                         
                         # run_command+= ' >> '+_type+union+ model_file +'.txt'
                         print run_command 
                         os.system(run_command)
                         print '\n\n\n'
-                        exit()
+                        # exit()
     # exit()
 
 

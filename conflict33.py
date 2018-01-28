@@ -575,7 +575,7 @@ class Model(object):
 
 
             f = 'train_zs_model_sparsity_'+str(args.sparsity)+'_coherent_'+str(args.coherent)+'_dropout_'+str(args.dropout)+"_lr_"+str(args.learning_rate)+'.pkl'
-            # print 'looking for clf file: ', f, os.path.exists(f)
+            print 'looking for clf file: ', f, os.path.exists('../SVM/'+f)
             if os.path.exists('../SVM/'+f):
                 print 'loading generator'
                 clf = joblib.load('../SVM/'+f)

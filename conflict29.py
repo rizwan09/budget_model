@@ -366,15 +366,15 @@ class Encoder(object):
         padding_id = embedding_layer.vocab_map["<padding>"]
 
         dropout = generator.dropout
-        dropout1 = generator1.dropout
-        # len*batch
+        dropout1 = dropout
+        # len*batch #generator1.dropout
         x = generator.x
         z = generator.z_pred
         z = z.dimshuffle((0,1,"x"))
 
-        x1 = generator1.x
-        z1 = generator1.z_pred
-        z1 = z1.dimshuffle((0,1,"x"))
+        x1 = x#generator1.x
+        z1 = z#generator1.z_pred
+        z1 = z#z1.dimshuffle((0,1,"x"))
 
         # batch*nclasses
         y = self.y = T.fmatrix()
@@ -411,7 +411,8 @@ class Encoder(object):
         cnt_non_padding1 = T.sum(masks1, axis=0) + 1e-8
         # len*batch*n_e
         embs = generator.word_embs
-        embs1 = generator1.word_embs
+        embs1 = embs 
+        #generator1.word_embs
 
         pooling = args.pooling
         lst_states = [ ]
@@ -475,9 +476,12 @@ class Encoder(object):
         zdiff = generator.zdiff
         logpz = generator.logpz
 
-        zsum1 = generator1.zsum
-        zdiff1 = generator1.zdiff
-        logpz1 = generator1.logpz
+        zsum1 = zsum
+        #generator1.zsum
+        zdiff1 = zdiff
+        #generator1.zdiff
+        logpz1 = logpz
+        #generator1.logpz
 
         coherent_factor = args.sparsity * args.coherent
         loss = self.loss = T.mean(loss_vec)
@@ -516,7 +520,8 @@ class Encoder(object):
         self.l2_cost = l2_cost
 
         self.cost_g = cost_logpz * 10 + generator.l2_cost
-        self.cost_g1 = cost_logpz1 * 10 + generator1.l2_cost
+        self.cost_g1 = self.cost_g
+        #cost_logpz1 * 10 + generator1.l2_cost
         self.cost_e = loss * 10 + l2_cost
         self.cost_e1 = loss1 * 10 + l2_cost
         #say("finish encoding : {}\n".format(time.time()-start_encode_time))
@@ -535,10 +540,10 @@ class Model(object):
         args, embedding_layer, nclasses = self.args, self.embedding_layer, self.nclasses
         #print 'in model ready: ', args.seed
         self.generator = Generator(args, embedding_layer, nclasses) #just_output_layer
-        self.generator1 = Generator1(args, embedding_layer, nclasses) #rcnn
+        self.generator1 = Generator(args, embedding_layer, nclasses) #rcnn
         self.encoder = Encoder(args, embedding_layer, nclasses, self.generator, self.generator1)
         self.generator.ready()
-        self.generator1.ready()
+        # self.generator1.ready()
         self.encoder.ready()
         self.dropout = self.generator.dropout
         self.x = self.generator.x
@@ -546,12 +551,17 @@ class Model(object):
         self.z = self.generator.z_pred
         self.word_embs= self.generator.word_embs
         
-        self.x1 = self.generator1.x
-        self.y1 = self.encoder.y1
-        self.z1 = self.generator1.z_pred
-        self.word_embs1= self.generator1.word_embs
+        self.x1 = self.x
+        #self.generator1.x
+        self.y1 = self.y
+        #self.encoder.y1
+        self.z1 = self.z
+        #self.generator1.z_pred
+        self.word_embs1= self.word_embs 
+        #self.generator1.word_embs
 
-        self.params = self.encoder.params + self.generator.params + self.generator1.params
+        self.params = self.encoder.params + self.generator.params 
+        #+ self.generator1.params
 
         #assert len(self.x) == len(self.z)
         #print 'x  shape: ', self.x.shape[0] 
@@ -572,7 +582,7 @@ class Model(object):
             pickle.dump(
                 ([ x.get_value() for x in self.encoder.params ],   # encoder
                  [ x.get_value() for x in self.generator.params ], # generator
-                 [ x.get_value() for x in self.generator1.params ],
+                 # [ x.get_value() for x in self.generator1.params ],
                  self.nclasses,
                  args                                 # training configuration
                 ),
@@ -640,9 +650,9 @@ class Model(object):
         print (" loading gen 0 rcnn from ", path)
         for x,v in zip(self.generator.params, gparams):
             x.set_value(v)
-        print (" loading gen 1 just output layer from ", path)
-        for x,v in zip(self.generator1.params, gparams1):
-            x.set_v
+        # print (" loading gen 1 just output layer from ", path)
+        # for x,v in zip(self.generator1.params, gparams1):
+        #     x.set_v
 
     def load_model2(self, path, path2, seed = None, select_all = None): # seed and select all can differ from file
         
@@ -674,12 +684,12 @@ class Model(object):
                 path2 += ".gz"
             else: path2 += ".pkl.gz"
 
-        with gzip.open(path2, "rb") as fin:
-            eparams, gparams, nclasses, args  = pickle.load(fin)
+        # with gzip.open(path2, "rb") as fin:
+        #     eparams, gparams, nclasses, args  = pickle.load(fin)
 
-        print (" loading geneartor1 from ", path2)  
-        for x,v in zip(self.generator1.params, gparams):
-            x.set_value(v)
+        # print (" loading geneartor1 from ", path2)  
+        # for x,v in zip(self.generator1.params, gparams):
+        #     x.set_value(v)
 
     
 
@@ -731,6 +741,14 @@ class Model(object):
                                beta2 = args.beta2,
                                lr = args.learning_rate
                         )[:3]
+        updates_ec, lr_ec, gnorm_ec = create_optimization_updates(
+                               cost = (self.encoder.cost_e+self.encoder.cost_e1)/2,
+                               params = self.encoder.params,
+                               method = args.learning,
+                               beta1 = args.beta1,
+                               beta2 = args.beta2,
+                               lr = args.learning_rate
+                        )[:3]
 
 
         # updates_g, lr_g, gnorm_g = create_optimization_updates(
@@ -748,34 +766,35 @@ class Model(object):
                 outputs = [ self.encoder.loss_vec, self.encoder.preds, self.z ],
                 # updates = self.generator.sample_updates
             )
-        get_loss_and_pred1 = theano.function(
-                inputs = [ self.x1, self.y1 ],
-                outputs = [ self.encoder.loss_vec1, self.encoder.preds1, self.z1 ],
-                updates = self.generator1.sample_updates
-            )
-
         eval_generator = theano.function(
                 inputs = [ self.x, self.y ],
                 outputs = [ self.z, self.encoder.obj, self.encoder.loss,
                                 self.encoder.pred_diff ],
                 # updates = self.generator.sample_updates
             )
-        eval_generator1 = theano.function(
-                inputs = [ self.x1, self.y1 ],
-                outputs = [ self.z1, self.encoder.obj1, self.encoder.loss1,
-                                self.encoder.pred_diff1 ],
-                updates = self.generator1.sample_updates
-            )
+        # get_loss_and_pred1 = theano.function(
+        #         inputs = [ self.x1, self.y1 ],
+        #         outputs = [ self.encoder.loss_vec1, self.encoder.preds1, self.z1 ],
+        #         # updates = self.generator1.sample_updates
+        #     )
+
+        
+        # eval_generator1 = theano.function(
+        #         inputs = [ self.x1, self.y1 ],
+        #         outputs = [ self.z1, self.encoder.obj1, self.encoder.loss1,
+        #                         self.encoder.pred_diff1 ],
+        #         # updates = self.generator1.sample_updates
+            # )
         sample_generator = theano.function(
                 inputs = [ self.x ],
                 outputs = self.z,
                 # updates = self.generator.sample_updates
             )
-        sample_generator1 = theano.function(
-                inputs = [ self.x1 ],
-                outputs = self.z1,
-                updates = self.generator1.sample_updates
-            )
+        # sample_generator1 = theano.function(
+        #         inputs = [ self.x1 ],
+        #         outputs = self.z1,
+        #         # updates = self.generator1.sample_updates
+        #     )
 
         sample_encoder = theano.function(
                 inputs = [ self.x, self.y, self.z],
@@ -784,12 +803,12 @@ class Model(object):
                 # updates = self.generator.sample_updates
             )
 
-        sample_encoder1 = theano.function(
-                inputs = [ self.x1, self.y1, self.z1],
-                outputs = [ self.encoder.obj1, self.encoder.loss1,
-                                self.encoder.pred_diff1],
-                updates = self.generator1.sample_updates
-            )
+        # sample_encoder1 = theano.function(
+        #         inputs = [ self.x1, self.y1, self.z1],
+        #         outputs = [ self.encoder.obj1, self.encoder.loss1,
+        #                         self.encoder.pred_diff1],
+        #         # updates = self.generator1.sample_updates
+        #     )
         
         train_generator_e = theano.function(
                 inputs = [ self.x, self.y ],
@@ -799,15 +818,23 @@ class Model(object):
                 # updates = updates_e.items() #+ updates_g.items() #+ self.generator.sample_updates,
                 updates = updates_e.items() #+ self.generator1.sample_updates #+ updates_g.items() ,
             )
-        train_generator_e1 = theano.function(
-                inputs = [ self.x1, self.y1 ],
-                outputs = [ self.encoder.obj1, self.encoder.loss1, \
-                                self.encoder.sparsity_cost1, self.z1, self.word_embs1, gnorm_e1],
-                                # self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
-                # updates = updates_e.items() #+ updates_g.items() #+ self.generator.sample_updates,
-                updates = updates_e1.items() + self.generator1.sample_updates #+ updates_g.items() ,
-            )
-        
+        # train_generator_e1 = theano.function(
+        #         inputs = [ self.x1, self.y1 ],
+        #         outputs = [ self.encoder.obj1, self.encoder.loss1, \
+        #                         self.encoder.sparsity_cost1, self.z1, self.word_embs1, gnorm_e1],
+        #                         # self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
+        #         # updates = updates_e.items() #+ updates_g.items() #+ self.generator.sample_updates,
+        #         updates = updates_e1.items() #+ self.generator1.sample_updates #+ updates_g.items() ,
+        #     )
+        # train_generator_ec = theano.function(
+        #         inputs = [ self.x, self.y, self.x1, self.y1  ],
+        #         outputs = [ self.encoder.obj, self.encoder.loss, \
+        #                         self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, self.encoder.obj1, self.encoder.loss1, \
+        #                         self.encoder.sparsity_cost1, self.z1, self.word_embs1, gnorm_e1],
+        #                         # self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
+        #         # updates = updates_e.items() #+ updates_g.items() #+ self.generator.sample_updates,
+        #         updates = updates_ec.items() #+ self.generator1.sample_updates #+ updates_g.items() ,
+        #     )
 
         eval_period = args.eval_period
         unchanged = 0
@@ -862,7 +889,10 @@ class Model(object):
                     start_train_time = time.time()
 
                     cost, loss, sparsity_cost, bz, emb, gl2_e = train_generator_e(bx, by)
-                    cost1, loss1, sparsity_cost1, bz1, emb1, gl2_e1 = train_generator_e1(bx, by)
+                    cost1, loss1, sparsity_cost1, bz1, emb1, gl2_e1 = 0, 0, 0, 0, 0, 0
+                    
+                    # cost1, loss1, sparsity_cost1, bz1, emb1, gl2_e1 = train_generator_e1(bx, by)
+                    # cost, loss, sparsity_cost, bz, emb, gl2_e, cost1, loss1, sparsity_cost1, bz1, emb1, gl2_e1 = train_generator_ec(bx, by, bx, by)
                     
 
                     k = len(by)
@@ -1232,39 +1262,73 @@ def main():
         sample_generator = theano.function(
                 inputs = [ model.x ],
                 outputs = model.z,
-                updates = model.generator.sample_updates
+                # updates = model.generator.sample_updates
+            )
+        sample_generator1 = theano.function(
+                inputs = [ model.x1 ],
+                outputs = model.z1,
+                updates = model.generator1.sample_updates
             )
         sample_encoder = theano.function(
                 inputs = [ model.x, model.y, model.z],
                 outputs = [ model.encoder.obj, model.encoder.loss,
                                 model.encoder.pred_diff],
-                updates = model.generator.sample_updates
+                # updates = model.generator.sample_updates
+            )
+        sample_encoder1 = theano.function(
+                inputs = [ model.x1, model.y1, model.z1],
+                outputs = [ model.encoder.obj1, model.encoder.loss1,
+                                model.encoder.pred_diff1],
+                updates = model.generator1.sample_updates
             )
         # compile an evaluation function
         eval_func = theano.function(
                 inputs = [ model.x, model.y ],
                 outputs = [ model.z, model.encoder.obj, model.encoder.loss,
                                 model.encoder.pred_diff ],
-                updates = model.generator.sample_updates
+                # updates = model.generator.sample_updates
+            )
+        eval_func1 = theano.function(
+                inputs = [ model.x1, model.y1 ],
+                outputs = [ model.z1, model.encoder.obj1, model.encoder.loss1,
+                                model.encoder.pred_diff1 ],
+                updates = model.generator1.sample_updates
             )
         debug_func_enc = theano.function(
                 inputs = [ model.x, model.y ],
                 outputs = [ model.z, model.encoder.obj, model.encoder.loss,
                                 model.encoder.pred_diff ] ,
-                updates = model.generator.sample_updates
+                # updates = model.generator.sample_updates
+            )
+        debug_func_enc1 = theano.function(
+                inputs = [ model.x1, model.y1 ],
+                outputs = [ model.z1, model.encoder.obj1, model.encoder.loss1,
+                                model.encoder.pred_diff1 ] ,
+                updates = model.generator1.sample_updates
             )
         debug_func_gen = theano.function(
                 inputs = [ model.x, model.y ],
                 outputs = [ model.z , model.encoder.obj, model.encoder.loss,
                                 model.encoder.pred_diff],
-                updates = model.generator.sample_updates
+                # updates = model.generator.sample_updates
+            )
+        debug_func_gen1 = theano.function(
+                inputs = [ model.x1, model.y1 ],
+                outputs = [ model.z1 , model.encoder.obj1, model.encoder.loss1,
+                                model.encoder.pred_diff1],
+                updates = model.generator1.sample_updates
             )
 
         # compile a predictor function
         pred_func = theano.function(
                 inputs = [ model.x ],
                 outputs = [ model.z, model.encoder.preds ],
-                updates = model.generator.sample_updates
+                # updates = model.generator.sample_updates
+            )
+        pred_func1 = theano.function(
+                inputs = [ model.x1 ],
+                outputs = [ model.z1, model.encoder.preds1 ],
+                updates = model.generator1.sample_updates
             )
 
         # batching data

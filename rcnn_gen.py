@@ -107,7 +107,7 @@ class Generator(object):
 
         # sample z given text (i.e. x)
         z_pred, sample_updates = output_layer.sample_all(h_final)
-
+        theano.printing.pydotprint(z_pred, outfile="../graph_data/logreg_pydotprint_rcnn_gen.png", var_with_name_simple=True)  
         # we are computing approximated gradient by sampling z;
         # so should mark sampled z not part of the gradient propagation path
         #
