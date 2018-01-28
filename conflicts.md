@@ -63,7 +63,7 @@ run_just_output_layer_imdb: I can train jointly just output layer gen + rcnn enc
 
 run_conflict26: load union and original full imdb encoder and (with no generator or with loading defferent sentence level (in contrast to word level in run_conflict28)  predictor geneartor like rcnn of tao lei (conflict26), just output layer (conflict27), run the experimens to collect/record result. this file similar to run_conflict15.
 
-run_conflict_28: load union and original full imdb encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei_rt (rcnn_gen_imdb.py), just output layerjust_output_layer_imdb.py) unlike run_conflict26, run the experimens to collect/record result. similar to run_conflict10 and run_conflict25.
+run_conflict_28: load union and original full imdb encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei (rcnn_gen_imdb.py), just output layer (just_output_layer_imdb.py) unlike run_conflict26, run the experimens to collect/record result. similar to run_conflict10 and run_conflict25.
 
 parse_result_n_parameter: parse rt outputfiles (jointly trained rcnn, just output layer gen + rcnn enc, initialaized with ori full rcnn enc) and collect/record the accuracies/performance.
 
@@ -71,3 +71,18 @@ conflict29: Encoder training based on the union of different generator outputs o
 
 conflict30: geneartor of just_output_layer with input: concate( word_embeddings(word_t-2,t-1,t,t+1,t+2)) neighboring info
 in contrast to the the simple word embedding of that word only (just_output_layer or avg of neighboring in conflict18) and jointly train with an encoder. The genrator modeule can also be loaded (without the joint encoder) with different encoder (like full enc) afterwards like avg in conflict20 and avg called in run_conflict10.
+
+
+conflict 31, 32: Save generator outputs on sentiment data
+
+conflict34: train an enc on the union of word selected by diefferent generators loaded from the saved ouputs from conflcit 31,32.
+
+run_conflict35: load union words enc and just out put / may be rcnn as well to record performances.
+
+conflcit 36, 37: Save generator outputs on rt data 
+
+conflict38: train an enc on the union of word selected by diefferent generators loaded from the saved ouputs from conflcit 36, 37 on rt. this is same as (conflci 34) this union does not incluse sparsity - values but in run_conflcit39 it may be included.
+
+run_conflict39: load union words enc and just out put / may be rcnn as well to record performances on rt. this is same as (conflci 35)
+
+
