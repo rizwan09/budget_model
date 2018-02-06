@@ -1,14 +1,14 @@
 import os
 # d = 'ROTTEN_TOMATOES'
 d= 'IMDB'
-# union = 'union_'
+union = 'union_'
 # union=''
 
 
-types = ['JUST_OUTPUT_LAYER','RCNN_RCNN']
+types = ['JUST_OUTPUT_LAYER_old','RCNN_RCNN_old']
 for t in types:
-	# for union in ['union_','']:
-	for union in ['']:
+	for union in ['union_','']:
+	# for union in ['']:
 		mydir = '/net/if1/mp5eb/budget_model/'+d+"/"+t
 		outfile = '../graph_data/'+d+'_full_enc_'+t+"_"+union+'result.txt'
 
@@ -23,6 +23,7 @@ for t in types:
 					elif union == 'union_' and file.startswith( 'model' ):
 						# print file, "\n ", t
 						continue
+					print file, "\n ", t
 					with open (os.path.join(mydir, file), 'r') as f:
 						l1 = -1
 						l2=-1
@@ -46,20 +47,20 @@ for t in types:
 
 
 							for word in line.split():
-								if 'accuracy=' in word: print line
+								# if 'accuracy=' in word: print line
 								if 'sparsity=' in word:
 									l1= word.split('sparsity=')[1].strip(',')
 								if 'coherent=' in word:
 									l2= word.split('coherent=')[1].strip(',')
 								if 'accuracy=' in word and is_best==1:
-									print line
+									# print line
 									if dev_found==0:
 										dev_found=1
 										# print 'dev found'
 									else:
 										# dev_found=0
 										ac = word.split('accuracy=')[1].strip(',')
-										print word, ac, s, fe, fg, e, g
+										# print word, ac, s, fe, fg, e, g
 								if 'p[1]g=' in word and ac!=-1:
 									s = word.split('p[1]g=')[1].strip(',')
 
@@ -77,7 +78,7 @@ for t in types:
 									dev_found = 0
 									tt = word.split('time=')[1].strip(',')
 									# is_best = 0
-									if(float(s)>0.10): 
+									if(float(s)>0.30): 
 										# if (float(ac)>0.871): ac = 0.871
 										print str(ac)+"\t"+str(s)+"\t"+str(g)+"\t"+str(e)+"\t"+str(tt)+"\t"+str(l1)+"\t"+str(l2)+"\n"
 						
@@ -93,10 +94,12 @@ for t in types:
 					
 
 						# print str(ac)+"\t"+str(s)+"\t"+str(g)+"\t"+str(e)+"\t"+str(tt)+"\t"+str(l1)+"\t"+str(l2)+"\n"
+						
 						# if ac!=-1:
 						# 	if(float(s)>0.0): 
 						# 		# if (float(ac)>0.871): ac = 0.871
 						# 		outf.write(str(ac)+"\t"+str(s)+"\t"+str(g)+"\t"+str(e)+"\t"+str(tt)+"\t"+str(l1)+"\t"+str(l2)+"\n")
+						
 						# print 'coherent=', l2
 						# print c
 						# print ac

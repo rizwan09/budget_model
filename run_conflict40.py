@@ -1,20 +1,12 @@
 import os
 
-# lamda_1 = [0.02, 0.01, 0.009,0.008,0.007, 0.006, 0.005, 0.004, 0.003]
-# lamda_1 = [0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.009,0.008,0.007, 0.006, 0.005, 0.004, 0.003, 0.002, 0.001, 0.0009]
+lamda_1 = [ 0.00065, 0.0007, 0.00075, 0.0008, 0.00085, 0.0009, 0.001, 0.0001]
+# lamda_1 = [ 0.00075, 0.0008, 0.00085, 0.0009]
+# lamda_1 = lamda_1[::-1]
 
-# lamda_1 = [0.00016, 0.0002, 0.00025, 0.0003, 0.00035, 0.0004] # for small 0.000085, 2 gru, markov, 
-# lamda_1 = [0.0003]#, 0.00006, 0.00005, 0.000065, 000075]
 
-# lamda_1 = [ 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01]
-lamda_1 = [-1, -2, -3]
-# lamda_2 = [  0.8, 1, 1.5, 0.5, 0.1]
-# lamda_2 = [ 0.02, 0.09, 0.1]
+lamda_2 = [-5, -0.1, -0.25, -0.5, -0.75, -0.85, 0.25, 0.5, 0.75, 0.85, 0.95, 0]
 
-# lamda_2 = [0.1]
-# lamda_1 = [0.001]
-lamda_2 = [0.05]
-lamda_2 = [0.5]
 
 
 dropout = [0.1]
@@ -35,34 +27,34 @@ union=''
 
 # 55% for lr 0.01, lr_1 = 0.001, lr_2 = 0.01, best 18% lr1= 0.005, l2=0.01
 
-_type = '../ROTTEN_TOMATOES/'
+_type = '../IMDB/'
 
 types = ['RCNN_RCNN', 'JUST_OUTPUT_LAYER']
 types = [ 'JUST_OUTPUT_LAYER', 'RCNN_RCNN']
-# types = [ 'RCNN_RCNN']
-types = [ 'JUST_OUTPUT_LAYER']
+types = [ 'RCNN_RCNN_old']
+types = [ 'JUST_OUTPUT_LAYER_old']
 
 f = 0
 for t in types:
     for l_1 in lamda_1:
-        if t=='RCNN_RCNN' and l_1>0.02: continue
+        # if t=='RCNN_RCNN' and l_1>0.02: continue
         # if t=='JUST_OUTPUT_LAYER': lamda_2 =[0.01]
         for l_2 in lamda_2:
 
-            for lr in [ 0.0005]:
+            for lr in [ 0.001]:
                 l='rcnn'
                 l2_reg=1e-6
                 d=200
-                batch_size=20
+                batch_size=10
                 d2=128
                 ### as we experiment with lstm for rotten tomatoes
-                load_model_file = 'model_'+l+'_sparsity_0_coherent_0_dropout_'+str(0.1)+"_lr_"+str(0.0005)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+                load_model_file = 'model_'+l+'_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
                 model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
                 
-                if t=='JUST_OUTPUT_LAYER': pyfile   = 'conflict37.py'
-                elif t=='RCNN_RCNN': pyfile   = 'conflict36.py'
+                if t=='JUST_OUTPUT_LAYER_old': pyfile   = 'conflict41.py'
+                elif t=='RCNN_RCNN_old': pyfile   = 'conflict40.py'
 
-                run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python  '+pyfile+' --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --train rotten_tomatoes --dev rotten_tomatoes --test rotten_tomatoes  --embedding glove.6B.300d_w_header.txt' + \
+                run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python  '+pyfile+' --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --train imdb --dev imdb --test imdb  --embedding glove.6B.300d_w_header.txt' + \
                     ' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "RCNN_RCNN/MODELS/rough_"+model_file \
                     + ' --load_model ' + _type +t+"/" +'MODELS/'+union+model_file + ' --load_gen_model ' + _type +t+"/"+'MODELS/'+union+model_file +' --batch '+str(batch_size)
                 

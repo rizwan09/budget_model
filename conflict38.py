@@ -26,7 +26,7 @@ total_encode_time = 0
 total_generate_time = 0
 
 lamda_1_all = [ 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01]
-lambda_2_all = [ 0.02, 0.09, 0.1, 0.01]
+lambda_2_all = [ 0.02, 0.09, 0.1, 0.01, 0.05]
 types = ['JUST_OUTPUT_LAYER','RCNN_RCNN']
 
 
@@ -331,7 +331,7 @@ class Model(object):
         sample_encoder = theano.function(
                 inputs = [ self.x, self.y],
                 outputs = [ self.encoder.obj, self.encoder.loss,
-                                self.encoder.pred_diff],
+                                self.encoder.pred_diff, self.encoder.preds],
                 # updates = self.generator.sample_updates
             )
 
@@ -355,8 +355,8 @@ class Model(object):
         tolerance = 0.001 #+ 1e-3
         dropout_prob = np.float64(args.dropout).astype(theano.config.floatX)
 
-        variations = 27 #(len(lamda_1_all)*len(lambda_2_all)*len(types))
-        batch_size = 10#args.batch/(len(lamda_1_all)*len(lambda_2_all)*len(types))
+        variations = 50 #(len(lamda_1_all)*len(lambda_2_all)*len(types))
+        batch_size = 20#args.batch/(len(lamda_1_all)*len(lambda_2_all)*len(types))
 
         for epoch_ in xrange(args.max_epochs): # -50 when max_epochs  = 100 given
             epoch = args.trained_max_epochs + epoch_
@@ -367,17 +367,48 @@ class Model(object):
                         )
 
             geneartors = []
+            slist = [0.01, 0.05]
             for t in types:
                 for l_1 in lamda_1_all:
                     for l_2 in lambda_2_all:
-                        if t=='JUST_OUTPUT_LAYER' and l_2!=0.01: continue
-                        if t=='RCNN_RCNN': continue # and l_2==0.01: continue
-                        f = 'train_zs_model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_0.1_lr_0.008.pkl.gz'
+                        if t=='JUST_OUTPUT_LAYER' and l_2 not in slist: continue
+                        if t=='RCNN_RCNN' and l_2 in slist: continue
+                        # if t=='JUST_OUTPUT_LAYER' :continue
+                            # if l_1==0.008 and l_2==0.02: continue
+                        f = 'train_zs_model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_0.1_lr_0.0005.pkl.gz'
                         print 'loading: ',t,"/", f
                         zs2, masks2 = load_z(f, t)
                         # print 'each gen is of shape: ', (len(zs2), len(zs2[0]), len(zs2[0][0]))
                         geneartors.append(zs2)
+            #special case
+            f = 'train_zs_model_sparsity_'+str(0.02)+'_coherent_'+str(0.08)+'_dropout_0.1_lr_0.0005.pkl.gz'
+            print 'loading: ',t,"/", f
+            zs2, masks2 = load_z(f, t)
+            # print 'each gen is of shape: ', (len(zs2), len(zs2[0]), len(zs2[0][0]))
+            geneartors.append(zs2)
+
+            f = 'train_zs_model_sparsity_'+str(0.001)+'_coherent_'+str(0.05)+'_dropout_0.1_lr_0.0005.pkl.gz'
+            print 'loading: ',t,"/", f
+            zs2, masks2 = load_z(f, t)
+            # print 'each gen is of shape: ', (len(zs2), len(zs2[0]), len(zs2[0][0]))
+            geneartors.append(zs2)
                         
+
+
+            for t in ['JUST_OUTPUT_LAYER']:
+                for l_1 in [-1.0,-2.0,-3.0]:
+                    for l_2 in [0.5]:
+                        # if t=='JUST_OUTPUT_LAYER' :continue
+                            # if l_1==0.008 and l_2==0.02: continue
+                        f = 'train_zs_model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_0.1_lr_0.0005.pkl.gz'
+                        print 'loading: ',t,"/", f
+                        zs2, masks2 = load_z(f, t)
+                        # print 'each gen is of shape: ', (len(zs2), len(zs2[0]), len(zs2[0][0]))
+                        geneartors.append(zs2)
+
+                        
+            print ('len(geneartors), len(geneartors[0]). len(geneartors[0][0])', len(geneartors), len(geneartors[0]), len(geneartors[0][0]))
+            
             assert len(geneartors) == variations
 
             # print ('len(geneartors), len(geneartors[0]). len(geneartors[0][0])', len(geneartors), len(geneartors[0]), len(geneartors[0][0]))
@@ -409,7 +440,7 @@ class Model(object):
                     bx_ = [bx for kk in range(variations)]
                     by_ = [by for kk in range(variations)]
 
-                    # print ('52 bx shape brfore concat)', len(bx_), len(bx_[0]))
+                    # print ('36 bx shape brfore concat)', len(bx_), len(bx_[0]))
 
                     bx = np.concatenate(bx_, axis = 1)
                     by = np.concatenate(by_, axis = 0)
@@ -450,7 +481,7 @@ class Model(object):
                     self.dropout.set_value(0.0)
                     start_dev_time = time.time()
                     dev_obj, dev_loss, dev_diff, dev_p1, dev_accuracy, gtime, etime = self.evaluate_data(
-                            dev_batches_x, dev_batches_y, sample_generator, sample_encoder, sampling=True)
+                            dev_batches_x, dev_batches_y, sample_encoder, sampling=True)
                     self.dropout.set_value(dropout_prob)
                     say("dev evaluate data time: {} \n".format(time.time() - start_dev_time))
                     cur_dev_avg_cost = dev_obj
@@ -555,7 +586,7 @@ class Model(object):
                                 time.time() - start_rational_time
                         ))
 
-                        
+
                     if test_batches_y is not None:
                         self.dropout.set_value(0.0)
 
@@ -567,7 +598,7 @@ class Model(object):
 
 
                         test_obj, test_loss, test_diff, test_p1, test_accuracy, gtime, etime = self.evaluate_data(
-                            test_batches_x, test_batches_y, sample_generator, sample_encoder, sampling=True, is_test = True)
+                            test_batches_x, test_batches_y, sample_encoder, sampling=True, is_test = True)
                         say(("\t accuracy={:0.3f} "+ 
                                 "  p[1]g={:.2f},  gen time={}, enc time={}  test time={} \n").format(
                         test_accuracy,
@@ -580,23 +611,47 @@ class Model(object):
 
 
 
-    def evaluate_data(self, batches_x, batches_y, eval_func, sampling=False):
+
+    def evaluate_data(self, batches_x, batches_y, eval_func, sampling=False, select_all=-1, is_test = False):
         padding_id = self.embedding_layer.vocab_map["<padding>"]
-        tot_obj, tot_mse, tot_diff, p1 = 0.0, 0.0, 0.0, 0.0
+        tot_obj, tot_mse, tot_diff, p1, tot_a = 0.0, 0.0, 0.0, 0.0, 0.0
+        generate_total_time = 0
+        encode_total_time = 0
+        zs = []
+        masks = []
         for bx, by in zip(batches_x, batches_y):
             if not sampling:
                 e, d = eval_func(bx, by)
             else:
                 mask = bx != padding_id
-                o, e, d = eval_func(bx, by)
-                p1 += 1 #np.sum(bz*mask) / (np.sum(mask) + 1e-8)
+                start_generate_time = time.time()
+                generator_time = time.time() - start_generate_time
+                generate_total_time += generator_time
+                # print 'batch generator_time: ', generator_time, 'total generator_time: ', generate_total_time
+                p1 += 1
+
+
+                start_encode_time = time.time()
+                o, e, d, p = eval_func(bx, by)
+                encoder_time = time.time() - start_encode_time
+                encode_total_time += encoder_time
+                # print 'batch encoder: ', encoder_time, 'total encoder_time: ', encode_total_time
+                
+                y_hat = p >=0.5
+                correct = (y_hat==by)
                 tot_obj += o
+                a= np.mean(correct) 
+                tot_a += a
+                # print p, by, correct, o, 1-o, a
             tot_mse += e
             tot_diff += d
         n = len(batches_x)
         if not sampling:
-            return tot_mse/n, tot_diff/n
-        return tot_obj/n, tot_mse/n, tot_diff/n, p1/n
+            return tot_mse/n, tot_diff/n 
+        print p1, n, generate_total_time, encode_total_time
+        return tot_obj/n, tot_mse/n, tot_diff/n, p1/n, tot_a/n, generate_total_time, encode_total_time 
+
+
 
     def evaluate_rationale(self, reviews, batches_x, batches_y, debug_func_enc):
         #print "first in evaluate_rational func"
@@ -704,35 +759,43 @@ def main():
     set_default_rng_seed(args.seed)
     assert args.embedding, "Pre-trained word embeddings required."
 
-    embedding_layer = myio.create_embedding_layer(
+    embedding_layer = myio.create_glove_embedding_layer(
                         args.embedding
                     )
 
     max_len = args.max_len
     
 
-    if args.train:
-        train_x, train_y = get_train_union_data(args) #myio.read_annotations(args.train)
+    if args.train == 'rotten_tomatoes':
+        train_x, train_y = myio.read_annotations(args.rotten_tomatoes+'train.txt', is_movie = True)
+        # print 'train size: ',  len(train_x), train_x[0], train_y[1]
         if args.debug :
             len_ = len(train_x)*args.debug
             len_ = int(len_)
             train_x = train_x[:len_]
             train_y = train_y[:len_]
-        print 'train size: ',  len(train_x) #, train_x[0], len(train_x[0])
-        #exit()
-        train_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in train_x ]
-
-
-    if args.dev:
-        dev_x, dev_y = myio.read_annotations(args.dev)
+        # print 'train in size: ',  len(train_x)
+        # print 'train size: ',  len(train_x) , train_x[1:10], train_y[1:10],len(train_x[1])
+        train_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in train_x ]
+        
+        dev_x, dev_y = myio.read_annotations(args.rotten_tomatoes+'dev.txt', is_movie = True)
         if args.debug :
             len_ = len(dev_x)*args.debug
             len_ = int(len_)
             dev_x = dev_x[:len_]
-            dev_x = dev_y[:len_]
-        print 'train size: ',  len(train_x)
-        dev_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in dev_x ]
+            dev_y = dev_y[:len_]
+        print 'dev in size: ',  len(dev_x)
+        dev_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in dev_x ]
 
+        test_x, test_y = myio.read_annotations(args.rotten_tomatoes+'test.txt', is_movie = True)
+        if args.debug :
+            len_ = len(test_x)*args.debug
+            len_ = int(len_)
+            test_x = test_x[:len_]
+            test_y = test_y[:len_]
+        print 'test size: ',  len(test_x)
+        test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
+   
 
     if args.load_rationale:
         rationale_data = myio.read_rationales(args.load_rationale)
@@ -765,7 +828,7 @@ def main():
         model.train(
                 (train_x, train_y),
                 (dev_x, dev_y) if args.dev else None,
-                None, #(test_x, test_y),
+                (test_x, test_y),
                 rationale_data if args.load_rationale else None,
                 trained_max_epochs = args.trained_max_epochs
             )

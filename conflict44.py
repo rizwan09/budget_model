@@ -1,6 +1,6 @@
 
 import os, sys, gzip
-import time
+import time, csv
 import math
 import json
 import cPickle as pickle
@@ -17,41 +17,99 @@ from utils import say
 import myio
 import options
 from extended_layers import ExtRCNN, ExtLSTM, ZLayer, LZLayer
+from nltk.corpus import stopwords
+
+stopWords = [  w.encode('utf-8') for w in list(stopwords.words('english'))+[',', '"', ';', '.', "'s", '(', ')', '-']   ]
+# print stopWords
+np.random.seed(seed=1111)
+total_encode_time = 0
+total_generate_time = 0
 
 
+def get_test_sampled_data(args, sentence_level_sampling_after_recall = 0): #works only when sentence_level_sampling_after_recall != 0
+    np.random.seed(seed=1111)
+    rationale_data = myio.read_rationales(args.load_rationale)
+    rationale_data_ori = myio.read_rationales(args.load_rationale)
 
-def save_z(path, bz, masks):
+    if sentence_level_sampling_after_recall == 0: return rationale_data
 
-    # append file suffix
-    path = '../ROTTEN_TOMATOES/JUST_OUTPUT_LAYER/Z/'+path
-    if not path.endswith(".pkl.gz"):
-        if path.endswith(".pkl"):
-            path += ".gz"
-        else:
-            path += ".pkl.gz"
+    balnk_out_words =[]
+    balnk_out_words_num = 0
+    total_words = 0
 
-    # output to path
-    with gzip.open(path, "wb") as fout:
-        
-        pickle.dump(
-            (bz,masks),
-            fout,
-            protocol = pickle.HIGHEST_PROTOCOL
-        )
-def load_z(path):
+    for i, x in enumerate(rationale_data):
+        idx = [ j for j, w in enumerate(x["x"]) if w in '.' ] + [len(x['x']) - 1]
+        truez_intvals = x[str(args.aspect)]
+        begin = 0
+        for end in idx:
+            # print ' now begin: ', begin, ' end: ', end
+            slngth = end - begin + 1
+            total_words += slngth
+            if(slngth<1): break
+            ratnlngth = 1e-5
+            for u in truez_intvals:
+                r_b = u[0]
+                r_e = u[1] - 1
+                
+                if(u[0]<begin): r_b = begin
+                if(u[1] - 1 >end): r_e = end
+                diff = r_e - r_b + 1
+                    # print r_b, r_e
+                if(diff>0):ratnlngth += diff
 
-    # append file suffix
-    path = '../ROTTEN_TOMATOES/JUST_OUTPUT_LAYER/Z/'+path
-    if not path.endswith(".pkl.gz"):
-        if path.endswith(".pkl"):
-            path += ".gz"
-        else:
-            path += ".pkl.gz"
+            if(  any (end>=u[0] for u in truez_intvals) == False) :
+                assert ratnlngth == 1e-5
+            elif(  any (begin<u[1]  for u in truez_intvals) == False ):
+                assert ratnlngth == 1e-5
+            
+            rnd = np.random.rand()
+            if(ratnlngth<1 and rnd>args.test_smaple_rate):
+                # print ' begin: ', begin, ' end: ', end, " true: ", truez_intvals, ' rnd: ', rnd, ' sample rate: ', args.test_smaple_rate
+                balnk_out_words_num+=slngth
+                balnk_out_words.append(rationale_data[i]['x'][begin:end+1])
+                rationale_data[i]['x'][begin:end] = ['<unk>' for j in range(begin, end+1) ]
 
-    # output to path
-    with gzip.open(path, "rb") as fin:
-        bz, masks  = pickle.load(fin)
-    return bz, masks
+            begin = end+1
+
+    print " now selection should be: ", (1.00 - (balnk_out_words_num*1.00/total_words)), ' #balnk_out_words: ', balnk_out_words_num, ' total: ', total_words
+    
+    return rationale_data
+
+
+def get_train_union_data(args):
+    np.random.seed(seed=1111)
+    train_x, train_y = myio.read_csv_annotations(args.train)
+    train_x_union, train_y_union  = myio.read_annotations(args.train)
+    len_train_x_ori = len(train_x_union)
+
+    len_ = int(args.debug*len(train_x))
+    train_x_union = train_x_union[0:len_]
+    train_y_union = train_y_union[0:len_]
+
+    for i in range(args.num_data):
+        for j in range(len_) :
+            idx = len(train_x_union)
+            train_x_union.append([])
+            train_y_union.append(train_y[j])
+            x = train_x[j]
+            a = 0
+            for b in range(len(x)):
+                w = x[b]
+                if w == '.':
+                    rnd = np.random.rand()
+                    # if(i==3 and j==3):print i, j, rnd
+                    if (rnd>args.balnk_out_prob ): # the reason is at least one sentence should be included
+                        for ww in x[a:b+1]: train_x_union[idx].append(ww)
+                    a = b+1 
+
+            if len(train_x_union[idx]) == 0:
+                train_x_union[idx] = x
+    # print 'returning from get union of blanked out dataset'
+    # print train_x_union[0]
+    # print train_x_union[len_]
+    # print train_x_union[2*len_]
+    assert len(train_x_union) == (args.num_data+1)*len_
+    return train_x_union, train_y_union
 
 def get_sparse(o_x):
     a = np.nonzero(o_x)
@@ -78,11 +136,7 @@ class Generator(object):
         self.embedding_layer = embedding_layer
         self.nclasses = nclasses
 
-
     def ready(self):
-        global total_generate_time
-        #say("in generator ready: \n")
-        #start_generate_time = time.time()
         embedding_layer = self.embedding_layer
         args = self.args
         padding_id = embedding_layer.vocab_map["<padding>"]
@@ -97,11 +151,27 @@ class Generator(object):
         n_d = args.hidden_dimension
         n_e = embedding_layer.n_d
         activation = get_activation_by_name(args.activation)
-        
+
         layers = self.layers = [ ]
+        layer_type = args.layer.lower()
+        for i in xrange(2):
+            if layer_type == "rcnn":
+                l = RCNN(
+                        n_in = n_e,
+                        n_out = n_d,
+                        activation = activation,
+                        order = args.order
+                    )
+            elif layer_type == "lstm":
+                l = LSTM(
+                        n_in = n_e,
+                        n_out = n_d,
+                        activation = activation
+                    )
+            layers.append(l)
+
         # len * batch
-        #masks = T.cast(T.neq(x, padding_id), theano.config.floatX)
-        masks = T.cast(T.neq(x, padding_id), theano.config.floatX ).dimshuffle((0,1,"x"))
+        masks = T.cast(T.neq(x, padding_id), theano.config.floatX)
 
         # (len*batch)*n_e
         embs = embedding_layer.forward(x.ravel())
@@ -113,43 +183,32 @@ class Generator(object):
         flipped_embs = embs[::-1]
 
         # len*bacth*n_d
-        #h1 = layers[0].forward_all(embs)
-        #h2 = layers[1].forward_all(flipped_embs)
-        #h_final = T.concatenate([h1, h2[::-1]], axis=2)
-        #h_final = apply_dropout(h_final, dropout)
-        #size = n_d * 2
+        h1 = layers[0].forward_all(embs)
+        h2 = layers[1].forward_all(flipped_embs)
+        h_final = T.concatenate([h1, h2[::-1]], axis=2)
+        h_final = apply_dropout(h_final, dropout)
+        size = n_d * 2
 
-        size = n_e
-
-
-        output_layer = self.output_layer = Layer(
+        output_layer = self.output_layer = ZLayer(
                 n_in = size,
-                n_out = 1,
-                activation = sigmoid
+                n_hidden = args.hidden_dimension2,
+                activation = activation
             )
 
-        # len*batch*1 
-        #probs = output_layer.forward(h_final)
-        probs = output_layer.forward(embs)
-    
-
-        # len*batch
-        probs2 = self.probs2 = probs.reshape(x.shape)
-        if self.args.seed is not None: self.MRG_rng = MRG_RandomStreams(self.args.seed)
-        else: self.MRG_rng = MRG_RandomStreams()
-        z_pred = self.z_pred = T.cast(self.MRG_rng.binomial(size=probs2.shape, p=probs2), theano.config.floatX) #"int8")
+        # sample z given text (i.e. x)
+        z_pred, sample_updates = output_layer.sample_all(h_final)
 
         # we are computing approximated gradient by sampling z;
         # so should mark sampled z not part of the gradient propagation path
         #
-
-
         z_pred = self.z_pred = theano.gradient.disconnected_grad(z_pred)
-        #self.sample_updates = sample_updates
+        self.sample_updates = sample_updates
         print "z_pred", z_pred.ndim
 
-        z2 = z_pred.dimshuffle((0,1,"x"))
-        logpz = - T.nnet.binary_crossentropy(probs, z2) * masks
+        probs = output_layer.forward_all(h_final, z_pred)
+        print "probs", probs.ndim
+
+        logpz = - T.nnet.binary_crossentropy(probs, z_pred) * masks
         logpz = self.logpz = logpz.reshape(x.shape)
         probs = self.probs = probs.reshape(x.shape)
 
@@ -174,8 +233,6 @@ class Generator(object):
                 l2_cost = l2_cost + T.sum(p**2)
         l2_cost = l2_cost * args.l2_reg
         self.l2_cost = l2_cost
-        #say("finish generating : {}\n".format(time.time()-start_generate_time))
-        #total_generate_time += time.time()-start_generate_time
 
 class Encoder(object):
 
@@ -312,7 +369,7 @@ class Encoder(object):
         self.cost_e = loss * 10 + l2_cost
         #say("finish encoding : {}\n".format(time.time()-start_encode_time))
         #total_encode_time += time.time()-start_encode_time
-        
+
 class Model(object):
 
     def __init__(self, args, embedding_layer, nclasses):
@@ -363,12 +420,12 @@ class Model(object):
             )
 
 
-    def load_model(self, path, seed = None, select_all = None, load_emb_only = 0): # seed and select all can differ from file
+    def load_model(self, path, seed = None, select_all = None, load_enc = 0, load_gen = 0): # seed and select all can differ from file
+        
         if not os.path.exists(path):
             if path.endswith(".pkl"):
                 path += ".gz"
-            else:
-                path += ".pkl.gz"
+            else: path += ".pkl.gz"
 
         with gzip.open(path, "rb") as fin:
             eparams, gparams, nclasses, args  = pickle.load(fin)
@@ -381,15 +438,15 @@ class Model(object):
 
         self.nclasses = nclasses
         self.ready()
-        flag = 0;
-        print (" loading encoder from ", path)
-        for x,v in zip(self.encoder.params, eparams):
-            # if(flag<5): 
-            #     print 'encoder param: ',v
-            x.set_value(v)
-            flag+=1
-        if(load_emb_only==0):
-            print (" loading gen from ", path)
+        flag = 0
+        if(load_enc ==1):
+            print (" loading encoder from ", path)
+            for x,v in zip(self.encoder.params, eparams):
+                # if(flag<5): 
+                #     print 'encoder param: ',v
+                x.set_value(v)
+                flag+=1
+        if(load_gen==1):
             for x,v in zip(self.generator.params, gparams):
                 x.set_value(v)
 
@@ -400,12 +457,11 @@ class Model(object):
                 path += ".gz"
             else: path += ".pkl.gz"
 
-        if 'union_word' in path:
-            with gzip.open(path, "rb") as fin:
-                eparams, nclasses, args  = pickle.load(fin)
-        else:
-            with gzip.open(path, "rb") as fin:
+        with gzip.open(path, "rb") as fin:
+            if 'union_words_' not in path: 
                 eparams, gparams, nclasses, args  = pickle.load(fin)
+            else:
+                eparams, nclasses, args  = pickle.load(fin)
 
         # construct model/network using saved configuration
         #self.args = args
@@ -442,7 +498,6 @@ class Model(object):
     #         x.set_value(theano.shared(
     #             np.zeros_like(eval(x).shape[0], eval(x).shape[1]).astype(theano.config.floatX)
     #         ))
-
 
     def train(self, train, dev, test, rationale_data, trained_max_epochs = None):
         args = self.args
@@ -495,38 +550,40 @@ class Model(object):
                                lr = args.learning_rate
                         )[:3]
 
-        sample_generator = theano.function(
-                inputs = [ self.x ],
-                outputs = self.z,
-                # updates = self.generator.sample_updates
-            )
 
         get_loss_and_pred = theano.function(
                 inputs = [ self.x, self.y ],
                 outputs = [ self.encoder.loss_vec, self.encoder.preds, self.z ],
-                # updates = self.generator.sample_updates
+                updates = self.generator.sample_updates
             )
 
         eval_generator = theano.function(
                 inputs = [ self.x, self.y ],
                 outputs = [ self.z, self.encoder.obj, self.encoder.loss,
-                                self.encoder.pred_diff],
-                # updates = self.generator.sample_updates
+                                self.encoder.pred_diff ],
+                updates = self.generator.sample_updates
+            )
+        sample_generator = theano.function(
+                inputs = [ self.x ],
+                outputs = self.z,
+                updates = self.generator.sample_updates
             )
         sample_encoder = theano.function(
                 inputs = [ self.x, self.y, self.z],
                 outputs = [ self.encoder.obj, self.encoder.loss,
-                                self.encoder.pred_diff, self.encoder.preds],
-                # updates = self.generator.sample_updates
+                                self.encoder.pred_diff],
+                updates = self.generator.sample_updates
             )
 
-        train_generator = theano.function(
-                inputs = [ self.x, self.y ],
+        
+        train_generator_e = theano.function(
+                inputs = [ self.x, self.y, self.z ],
                 outputs = [ self.encoder.obj, self.encoder.loss, \
-                                self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g ],
-                updates = updates_e.items() + updates_g.items() #+ self.generator.sample_updates,
+                                self.encoder.sparsity_cost, self.word_embs, gnorm_e],
+                                # self.encoder.sparsity_cost, self.z, self.word_embs, gnorm_e, gnorm_g, self.generator.probs2],
+                # updates = updates_e.items() #+ updates_g.items() #+ self.generator.sample_updates,
+                updates = updates_e.items() + updates_g.items() + self.generator.sample_updates,
             )
-
         
 
         eval_period = args.eval_period
@@ -535,16 +592,16 @@ class Model(object):
         best_dev_e = 1e+2
         last_train_avg_cost = None
         last_dev_avg_cost = None
-        tolerance = 0.001#0.10 + 1e-3
+        tolerance = 0.001 #+ 1e-3
         dropout_prob = np.float64(args.dropout).astype(theano.config.floatX)
 
-        for epoch_ in xrange(args.max_epochs ): # -50 when max_epochs  = 100 given
+        for epoch_ in xrange(args.max_epochs): # -50 when max_epochs  = 100 given
             #print(" max epochs in train func: ", args.max_epochs)
             epoch = args.trained_max_epochs + epoch_
             unchanged += 1
-            if unchanged > 25: 
-                print 'dev set increases more than 25 times after the best dev found'
-                #return
+            # if unchanged > 20: 
+            #     print 'dev set increases more than 20 times after the best dev found so return'
+            #     return
 
             train_batches_x, train_batches_y = myio.create_batches(
                             train[0], train[1], args.batch, padding_id
@@ -556,10 +613,6 @@ class Model(object):
                 
             start_train_generate = time.time()
             more_counter = 0
-
-            masks = []
-            zs = []
-
             while more:
                 processed = 0
                 train_cost = 0.0
@@ -578,25 +631,9 @@ class Model(object):
                     mask = bx != padding_id
                     start_train_time = time.time()
 
-                    ###########
-
-                    #no training only save bzs
-                    bz = sample_generator(bx)
-                    p1 += np.sum(bz*mask) / (np.sum(mask)+1e-8)
-                    zs.append(bz)
-                    masks.append(mask)
-                    continue
-
-
-                    ###########
-
-
-
-
-
-
-                    cost, loss, sparsity_cost, bz, emb, gl2_e, gl2_g = train_generator(bx, by)
-                    #print('gl2_g: ' , gl2_g)
+                    bz = np.ones_like(bx, dtype=theano.config.floatX)  #train on full dataset
+                    cost, loss, sparsity_cost, emb, gl2_e = train_generator_e(bx, by, bz)
+                    
 
                     k = len(by)
                     processed += k
@@ -611,8 +648,8 @@ class Model(object):
                 if dev:
                     self.dropout.set_value(0.0)
                     start_dev_time = time.time()
-                    dev_obj, dev_loss, dev_diff, dev_p1, dev_accuracy, gtime, etime = self.evaluate_data(
-                            dev_batches_x, dev_batches_y, sample_generator, sample_encoder, sampling=True)
+                    dev_obj, dev_loss, dev_diff, dev_p1 = self.evaluate_data(
+                            dev_batches_x, dev_batches_y, eval_generator, sampling=True)
                     self.dropout.set_value(dropout_prob)
                     say("dev evaluate data time: {} \n".format(time.time() - start_dev_time))
                     cur_dev_avg_cost = dev_obj
@@ -648,31 +685,30 @@ class Model(object):
                     continue
 
                 last_train_avg_cost = cur_train_avg_cost
-
-                last_train_avg_cost = cur_train_avg_cost
                 if dev: last_dev_avg_cost = cur_dev_avg_cost
 
                 say("\n")
-                # say(("Generator Epoch {:.2f}  costg={:.4f}  scost={:.4f}  lossg={:.4f}  " +
-                #     "p[1]={:.2f}  |g|={:.4f} {:.4f}\t[{:.2f}m / {:.2f}m]\n").format(
-                #         epoch+(i+1.0)/N,
-                #         train_cost / N,
-                #         train_sparsity_cost / N,
-                #         train_loss / N,
-                #         p1 / N,
-                #         float(gl2_e),
-                #         float(gl2_g),
-                #         (time.time()-start_time)/60.0,
-                #         (time.time()-start_time)/60.0/(i+1)*N
-                #     ))
+                
+
+                say(("Encoder Epoch {:.2f}  costg={:.4f}  scost={:.4f}  lossg={:.4f}  " +
+                    "p[1]={:.2f}  |g|= {:.4f}\t[{:.2f}m / {:.2f}m]\n").format(
+                        epoch+(i+1.0)/N,
+                        train_cost / N,
+                        train_sparsity_cost / N,
+                        train_loss / N,
+                        p1 / N,
+                        float(gl2_e),
+                        (time.time()-start_time)/60.0,
+                        (time.time()-start_time)/60.0/(i+1)*N
+                    ))
+
                 say("\t"+str([ "{:.2f}".format(np.linalg.norm(x.get_value(borrow=True))) \
                                 for x in self.encoder.params ])+"\n")
                 say("\t"+str([ "{:.2f}".format(np.linalg.norm(x.get_value(borrow=True))) \
                                 for x in self.generator.params ])+"\n")
-                # say("total encode time = {} total geneartor time = {} \n".format(total_encode_time, total_generate_time))
+                say("total encode time = {} total geneartor time = {} \n".format(total_encode_time, total_generate_time))
 
-                # if (epoch_ + 1 )% args.save_every ==0 :#and epoch_>0:
-                if (epoch_ + 1 )% args.max_epochs ==0 :#and epoch_>0:
+                if epoch_ % args.save_every ==0 :#and epoch_>0:
                     print 'saving model after epoch -', epoch_+1, ' file name: ', args.save_model +  str(epoch_)
                     self.save_model(args.save_model+str(epoch_), args)
 
@@ -684,13 +720,12 @@ class Model(object):
                             self.dump_rationales(args.dump, valid_batches_x, valid_batches_y,
                                         get_loss_and_pred, sample_generator)
 
-                        # if args.save_model:
-                        #     print 'saving best model after epoch -', epoch_ + 1, ' file name: ', args.save_model
-                        #     self.save_model(args.save_model, args)
+                        if args.save_model:
+                            print 'saving best model after epoch -', epoch_ + 1, ' file name: ', args.save_model
+                            self.save_model(args.save_model, args)
 
-                    say(("\t accuracy={:0.3f} sampling devg={:.4f}  mseg={:.4f}  avg_diffg={:.4f}" + 
+                    say(("\tsampling devg={:.4f}  mseg={:.4f}  avg_diffg={:.4f}" + 
                                 "  p[1]g={:.2f}  best_dev={:.4f}\n").format(
-                        dev_accuracy,
                         dev_obj,
                         dev_loss,
                         dev_diff,
@@ -707,147 +742,93 @@ class Model(object):
                         #        valid_batches_y, eval_generator)
 
 
-
-                        r_mse, r_p1, r_prec1, r_prec2, gen_time, enc_time, prec_cal_time = self.evaluate_rationale(
+                        
+                        r_mse, r_p1, r_prec1, r_prec2, gen_time, enc_time, prec_cal_time, recall, actual_recall = self.evaluate_rationale(
                             rationale_data, valid_batches_x,
                             valid_batches_y, sample_generator, sample_encoder, eval_generator)
 
                         self.dropout.set_value(dropout_prob)
                         say(("\trationale mser={:.4f}  p[1]r={:.2f}  prec1={:.4f}" +
-                                    "  prec2={:.4f} time nedded for rational={}\n").format(
+                                    "  prec2={:.4f} recall={:.4f} actual recall={:.4f} time nedded for rational={}\n").format(
                                 r_mse,
                                 r_p1,
                                 r_prec1,
                                 r_prec2, 
+                                recall,
+                                actual_recall,
                                 time.time() - start_rational_time
                         ))
 
 
-                    if test_batches_y is not None:
-                        self.dropout.set_value(0.0)
 
-                        start_rational_time = time.time()
-                        #r_mse, r_p1, r_prec1, r_prec2 = self.evaluate_rationale(
-                        #        rationale_data, valid_batches_x,
-                        #        valid_batches_y, eval_generator)
-
-
-
-                        test_obj, test_loss, test_diff, test_p1, test_accuracy, gtime, etime = self.evaluate_data(
-                            test_batches_x, test_batches_y, sample_generator, sample_encoder, sampling=True, is_test = True)
-                        say(("\t accuracy={:0.3f} "+ 
-                                "  p[1]g={:.2f},  gen time={}, enc time={}  test time={} \n").format(
-                        test_accuracy,
-                        test_p1,
-                        gtime,
-                        etime,
-                        time.time() - start_rational_time
-                    ))
-
-                print 'saving bzs: ', p1 / N,
-                f = 'train_zs_model_sparsity_'+str(args.sparsity)+'_coherent_'+str(args.coherent)+'_dropout_'+str(args.dropout)+"_lr_"+str(args.learning_rate)+'.pkl.gz'
-                
-                print f
-                save_z(f, zs, masks)
-                print 'saving done now loading for checking'
-                zs2, masks2 = load_z(f)
-                # assert bz2.all() == zs.all()
-                # assert masks2.all()==masks.all()
-                print 'saving done'
-                print (sum([ np.sum(bz2*mask2) / (np.sum(mask2)+1e-8) for bz2, mask2 in zip(zs2, masks2)])/len(zs2))
-                print 'exiting'
-                more = False
-                exit()
-                        
-
-
-    def evaluate_data(self, batches_x, batches_y, eval_func_gen, eval_func, sampling=False, select_all=-1, is_test = False):
+    def evaluate_data(self, batches_x, batches_y, eval_func, sampling=False):
         padding_id = self.embedding_layer.vocab_map["<padding>"]
-        tot_obj, tot_mse, tot_diff, p1, tot_a = 0.0, 0.0, 0.0, 0.0, 0.0
-        generate_total_time = 0
-        encode_total_time = 0
-        zs = []
-        masks = []
+        tot_obj, tot_mse, tot_diff, p1 = 0.0, 0.0, 0.0, 0.0
         for bx, by in zip(batches_x, batches_y):
             if not sampling:
                 e, d = eval_func(bx, by)
             else:
                 mask = bx != padding_id
-                start_generate_time = time.time()
-                bz = eval_func_gen(bx)
-                zs.append(bz)
-                masks.append(mask)
-
-
-
-                generator_time = time.time() - start_generate_time
-                generate_total_time += generator_time
-                # print 'batch generator_time: ', generator_time, 'total generator_time: ', generate_total_time
+                bz, o, e, d = eval_func(bx, by)
                 p1 += np.sum(bz*mask) / (np.sum(mask) + 1e-8)
-
-
-                bx_t = np.array(remove_non_selcted(bx, bz,  padding_id)).astype(np.int32) #bx_t has only the words those are selected by the generator
-                bz_t = np.ones_like(bx_t, dtype=theano.config.floatX) #so bz_t has all 1 for bx_t
-
-
-            #o, e, d = debug_func_enc(bx, by, bz) # o, e, d = debug_func_enc(bx, by, bz)
-                start_encode_time = time.time()
-                o, e, d, p = eval_func(bx_t, by, bz_t)
-                encoder_time = time.time() - start_encode_time
-                encode_total_time += encoder_time
-                # print 'batch encoder: ', encoder_time, 'total encoder_time: ', encode_total_time
-                
-                y_hat = p >=0.5
-                correct = (y_hat==by)
                 tot_obj += o
-                a= np.mean(correct) 
-                tot_a += a
-                # print p, by, correct, o, 1-o, a
             tot_mse += e
             tot_diff += d
         n = len(batches_x)
         if not sampling:
-            return tot_mse/n, tot_diff/n 
-        print p1, n, generate_total_time, encode_total_time
-        # f = 'dev'
-        # if is_test==True: f = 'test'
-        # f = f + '_zs_model_sparsity_'+str(args.sparsity)+'_coherent_'+str(args.coherent)+'_dropout_'+str(args.dropout)+"_lr_"+str(args.learning_rate)+'.pkl.gz'   
-        # print f
-        # save_z(f, zs, masks)
-        return tot_obj/n, tot_mse/n, tot_diff/n, p1/n, tot_a/n, generate_total_time, encode_total_time 
+            return tot_mse/n, tot_diff/n
+        return tot_obj/n, tot_mse/n, tot_diff/n, p1/n
 
     def evaluate_rationale(self, reviews, batches_x, batches_y, debug_func_gen, debug_func_enc, eval_func):
-        #print "first in evaluate_rational func"
+        # print "first in evaluate_rational func"
         args = self.args
         padding_id = self.embedding_layer.vocab_map["<padding>"]
+        unk_id = self.embedding_layer.vocab_map["<unk>"]
         aspect = str(args.aspect)
-        p1, tot_mse, tot_prec1, tot_prec2 = 0.0, 0.0, 0.0, 0.0
-        tot_z, tot_n = 1e-10, 1e-10
+        p1, tot_mse, tot_prec1, tot_prec2, tot_rec1 = 0.0, 0.0, 0.0, 0.0, 0.0
+        tot_z, tot_n, tot_tn = 1e-10, 1e-10, 1e-10
         cnt = 0
-
+        cnt_t = 0
+        cnt_c = 0
+        appended_rationales = 0
+        actual_rationales = 9725
+        stopword_rationales = 8557
+        tnum_gold_rationales = 18282 # 9725+8557
+        actual_prec = 0
         start_prec_cal_time = time.time()
         encode_total_time = 0
         generate_total_time = 0
-        masks =[]
-        zs =[]
+
+        if(args.gen_type == 'rand_word' ):
+            print(" rand selection ")
+        else: print(" words r selected using gen")
+
+
         for bx, by in zip(batches_x, batches_y):
+            # print ('one batch')
             mask = bx != padding_id
             
             start_generate_time = time.time()
-            if args.select_all == 1: bz = np.ones_like(bx, dtype=theano.config.floatX) 
-            else:
-                if args.select_all == 0: bz = np.zeros_like(bx, dtype=theano.config.floatX)
-                else: 
-                    bz = debug_func_gen(bx)
-                    zs.append(bz)
-                    masks.append(mask)
+            # if args.select_all == 1: bz = np.ones_like(bx, dtype=theano.config.floatX) 
+            # else:
+            #     if args.select_all == 0: bz = np.zeros_like(bx, dtype=theano.config.floatX)
+            #     else: bz = debug_func_gen(bx)
             #print 'bx len: ', len(bx), ' bz len: ', len(bz)
+
+
+
+            if args.select_all == 1: bz = np.ones_like(bx, dtype=theano.config.floatX) 
+            elif args.select_all == 0: bz = np.zeros_like(bx, dtype=theano.config.floatX)
+            else:
+                    if(args.gen_type == 'rand_word'):
+                        print(" rand selection ")
+                        np.random.seed(1111)
+                        r = np.random.random_sample(bx.shape)
+                        bz = r<=args.select_all
+                    else: bz = debug_func_gen(bx)
+
             generator_time = time.time() - start_generate_time
             generate_total_time += generator_time
-
-            #print 'bx[0]: ', bx[0], len (bx[0]), '\nbz[0]: ' , bz[0], len (bz[0])
-            #print 'bx[60]: ', bx[60], len (bx[60]), '\nbz[60]: ' , bz[60], len (bz[60])
-            #exit()
 
             start_encode_time = time.time()
             bx_t = np.array(remove_non_selcted(bx, bz,  padding_id)).astype(np.int32) #bx_t has only the words those are selected by the generator
@@ -855,26 +836,17 @@ class Model(object):
 
 
             #o, e, d = debug_func_enc(bx, by, bz) # o, e, d = debug_func_enc(bx, by, bz)
+            # print("before encoder: ")
             o, e, d = debug_func_enc(bx_t, by, bz_t)
+            # print("after encoder: ")
             encoder_time = time.time() - start_encode_time
             encode_total_time += encoder_time
-            #bz,  o, e, d = eval_func(bx, by)
-
-           
-
-            #print ' bz[0] from generator: ', bz[0]
-
-            #print ' model.gen.z[0] ::: :::: ', self.generator.z[0]
-            #print ' model.gen.z_pred[0]::: ', self.generator.z_pred[0]
-            #print ' model.enc.gen.z[0]::: ', self.encoder.generator.z[0]
-            #print ' model.enc.gen.z_pred[0]::: ', self.encoder.generator.z_pred[0]
-
-            #print ' e_z[0] from encoder:', e_z[0]
-            #exit()
-
             
+
+
+            mask2 = mask #* (bx != unk_id)
             tot_mse += e
-            p1 += np.sum(bz*mask)/(np.sum(mask) + 1e-8)
+            p1 += np.sum(bz*mask2)/(np.sum(mask) + 1e-8)
             if args.aspect >= 0:
                 for z,m in zip(bz.T, mask.T):
                     z = [ vz for vz,vm in zip(z,m) if vm ]
@@ -882,21 +854,30 @@ class Model(object):
                     truez_intvals = reviews[cnt][aspect]
                     prec = sum( 1 for i, zi in enumerate(z) if zi>0 and \
                                 any(i>=u[0] and i<u[1] for u in truez_intvals) )
+
+                    actual_prec += sum( 1 for i, zi in enumerate(z) if zi>0 and reviews[cnt]["x"][i].encode('utf-8')  in stopWords and \
+                                any(i>=u[0] and i<u[1] for u in truez_intvals) ) # not in 
+
+                    ntz = sum( u[1] - u[0] for u in truez_intvals) 
                     nz = sum(z)
+                    if ntz>0:
+                        tot_rec1 += prec/(ntz+0.0)
+                        tot_tn +=1
+                    # else:
+                    #     print (truez_intvals, 'ntz: ', ntz)
                     if nz > 0:
                         tot_prec1 += prec/(nz+0.0)
                         tot_n += 1
                     tot_prec2 += prec
                     tot_z += nz
                     cnt += 1
+
         #assert cnt == len(reviews)
         n = len(batches_x)
-
+        a_r = actual_prec/(actual_rationales +0.0)
+        print('total selection: ', p1, ' total prec1: ', tot_prec1, ' total prec2: ', tot_prec2, ' recall: ' , tot_rec1/tot_tn , 'total gold: ', str(tot_tn), 'actual recall: ', str(actual_prec)+'/'+str(actual_rationales), a_r )
         prec_cal_time = time.time() - start_prec_cal_time
-        f = 'test_zs_model_sparsity_'+str(args.sparsity)+'_coherent_'+str(args.coherent)+'_dropout_'+str(args.dropout)+"_lr_"+str(args.learning_rate)+'pkl.gz'   
-        print f
-        save_z(f, zs, masks)
-        return tot_mse/n, p1/n, tot_prec1/tot_n, tot_prec2/tot_z, generate_total_time, encode_total_time, prec_cal_time #, sum_y/sum_y_counts
+        return tot_mse/n, p1/n, tot_prec1/tot_n, tot_prec2/tot_z, generate_total_time, encode_total_time, prec_cal_time, tot_rec1/tot_tn, a_r #, sum_y/sum_y_counts
 
     def dump_rationales(self, path, batches_x, batches_y, eval_func, sample_func):
         embedding_layer = self.embedding_layer
@@ -931,52 +912,41 @@ def main():
     set_default_rng_seed(args.seed)
     assert args.embedding, "Pre-trained word embeddings required."
 
-    embedding_layer = myio.create_glove_embedding_layer(
+    embedding_layer = myio.create_embedding_layer(
                         args.embedding
                     )
 
     max_len = args.max_len
     
 
-    if args.train == 'rotten_tomatoes':
-        train_x, train_y = myio.read_annotations(args.rotten_tomatoes+'train.txt', is_movie = True)
-        # print 'train size: ',  len(train_x), train_x[0], train_y[1]
+    if args.train:
+        train_x, train_y = get_train_union_data(args) #myio.read_annotations(args.train)
         if args.debug :
             len_ = len(train_x)*args.debug
             len_ = int(len_)
             train_x = train_x[:len_]
             train_y = train_y[:len_]
-        # print 'train in size: ',  len(train_x)
-        # print 'train size: ',  len(train_x) , train_x[1:10], train_y[1:10],len(train_x[1])
-        train_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in train_x ]
-        
-        dev_x, dev_y = myio.read_annotations(args.rotten_tomatoes+'dev.txt', is_movie = True)
+        print 'train size: ',  len(train_x) #, train_x[0], len(train_x[0])
+        #exit()
+        train_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in train_x ]
+
+
+    if args.dev:
+        dev_x, dev_y = myio.read_annotations(args.dev)
         if args.debug :
             len_ = len(dev_x)*args.debug
             len_ = int(len_)
             dev_x = dev_x[:len_]
-            dev_y = dev_y[:len_]
-        print 'dev in size: ',  len(dev_x)
-        dev_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in dev_x ]
-
-        test_x, test_y = myio.read_annotations(args.rotten_tomatoes+'test.txt', is_movie = True)
-        if args.debug :
-            len_ = len(test_x)*args.debug
-            len_ = int(len_)
-            test_x = test_x[:len_]
-            test_y = test_y[:len_]
-        print 'test size: ',  len(test_x)
-        test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
-   
-        
+            dev_x = dev_y[:len_]
+        print 'train size: ',  len(train_x)
+        dev_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in dev_x ]
 
 
     if args.load_rationale:
 
-        rationale_data = myio.read_rationales(args.load_rationale)
+        rationale_data = get_test_sampled_data(args) #myio.read_rationales(args.load_rationale)
         for x in rationale_data:
-            x["xids"] = embedding_layer.map_to_ids(x["x"], is_rt=True)
-
+            x["xids"] = embedding_layer.map_to_ids(x["x"])
 
     #print 'in main: ', args.seed
     if args.train:
@@ -985,12 +955,13 @@ def main():
                     embedding_layer = embedding_layer,
                     nclasses = len(train_y[0])
                 )
-        if args.load_model: 
-            model.load_model2(args.load_model,args.load_gen_model, seed = args.seed, select_all = args.select_all)
+        if args.load_model or args.load_gen_only: 
+            model.load_model(args.load_model, seed = args.seed, select_all = args.select_all, load_enc = 1, load_gen=0)
             say("model loaded successfully.\n")
         else:
-            say("model created successfully.\n")
             model.ready()
+            
+            # model.make_gen_zero()
         #say(" ready time nedded {} \n".format(time.time()-start_ready_time))
 
         #debug_func2 = theano.function(
@@ -1003,7 +974,7 @@ def main():
         model.train(
                 (train_x, train_y),
                 (dev_x, dev_y) if args.dev else None,
-                (test_x, test_y),
+                None, #(test_x, test_y),
                 rationale_data if args.load_rationale else None,
                 trained_max_epochs = args.trained_max_epochs
             )
@@ -1015,89 +986,86 @@ def main():
                     nclasses = -1
                 )
         model.load_model2(args.load_model,args.load_gen_model, seed = args.seed, select_all = args.select_all)
-        # model.load_model(args.load_model, seed = args.seed, select_all = args.select_all, load_emb_only=0)
-        # say("model enc loaded successfully.\n")
-        say(" both model loaded successfully by load_model2 func.\n")
+        say(" model loaded successfully.\n")
+
 
         sample_generator = theano.function(
                 inputs = [ model.x ],
                 outputs = model.z,
-                # updates = model.generator.sample_updates
+                updates = model.generator.sample_updates
             )
         sample_encoder = theano.function(
                 inputs = [ model.x, model.y, model.z],
                 outputs = [ model.encoder.obj, model.encoder.loss,
-                                model.encoder.pred_diff, model.encoder.preds],
-                # updates = model.generator.sample_updates
+                                model.encoder.pred_diff],
+                updates = model.generator.sample_updates
             )
         # compile an evaluation function
         eval_func = theano.function(
                 inputs = [ model.x, model.y ],
                 outputs = [ model.z, model.encoder.obj, model.encoder.loss,
                                 model.encoder.pred_diff ],
-                # updates = model.generator.sample_updates
+                updates = model.generator.sample_updates
             )
         debug_func_enc = theano.function(
                 inputs = [ model.x, model.y ],
                 outputs = [ model.z, model.encoder.obj, model.encoder.loss,
                                 model.encoder.pred_diff ] ,
-                # updates = model.generator.sample_updates
+                updates = model.generator.sample_updates
             )
         debug_func_gen = theano.function(
                 inputs = [ model.x, model.y ],
                 outputs = [ model.z , model.encoder.obj, model.encoder.loss,
                                 model.encoder.pred_diff],
-                # updates = model.generator.sample_updates
+                updates = model.generator.sample_updates
             )
 
-        
+        # compile a predictor function
+        pred_func = theano.function(
+                inputs = [ model.x ],
+                outputs = [ model.z, model.encoder.preds ],
+                updates = model.generator.sample_updates
+            )
 
         # batching data
         padding_id = embedding_layer.vocab_map["<padding>"]
-
-        test_x, test_y = myio.read_annotations(args.rotten_tomatoes+'test.txt', is_movie = True)
-        if args.debug :
-            len_ = len(test_x)*args.debug
-            len_ = int(len_)
-            test_x = test_x[:len_]
-            test_y = test_y[:len_]
-        print 'test size: ',  len(test_x)
-        test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
-   
-        
-        test = (test_x, test_y)
-        if test is not None:
-            test_batches_x, test_batches_y = myio.create_batches(
-                            test[0], test[1], args.batch, padding_id
-                        )
+        if rationale_data is not None:
+            valid_batches_x, valid_batches_y = myio.create_batches(
+                    [ u["xids"] for u in rationale_data ],
+                    [ u["y"] for u in rationale_data ],
+                    args.batch,
+                    padding_id,
+                    sort = False
+                )
         
 
         # disable dropout
         model.dropout.set_value(0.0)
-        if test_batches_y is not None:
+        if rationale_data is not None:
+            #model.dropout.set_value(0.0)
             start_rational_time = time.time()
-            #r_mse, r_p1, r_prec1, r_prec2 = self.evaluate_rationale(
-            #        rationale_data, valid_batches_x,
-            #        valid_batches_y, eval_generator)
+            r_mse, r_p1, r_prec1, r_prec2, gen_time, enc_time, prec_cal_time, recall, actual_recall = model.evaluate_rationale(
+                    rationale_data, valid_batches_x,
+                    valid_batches_y, sample_generator, sample_encoder, eval_func)
+                    #valid_batches_y, eval_func)
 
+            #model.dropout.set_value(dropout_prob)
+            #say(("\ttest rationale mser={:.4f}  p[1]r={:.2f}  prec1={:.4f}" +
+            #            "  prec2={:.4f} generator time={:.4f} encoder time={:.4f} total test time={:.4f}\n").format(
+            #        r_mse,
+            #        r_p1,
+            #        r_prec1,
+            #        r_prec2, 
+            #        gen_time, 
+            #        enc_time,
+            #        time.time() - start_rational_time
+            #))
 
-
-            test_obj, test_loss, test_diff, test_p1, test_accuracy, gtime, etime = model.evaluate_data(
-                test_batches_x, test_batches_y, sample_generator, sample_encoder, sampling=True, select_all=args.select_all)
-            ttime= time.time() - start_rational_time
-            say(("\t accuracy={:0.3f} "+ 
-                    "  p[1]g={:.2f},  gen time={}, enc time={}  test time={} \n").format(
-            test_accuracy,
-            test_p1,
-            gtime,
-            etime,
-            ttime
-        ))
-
-
-            # data = str('%.5f' % r_mse) + "\t" + str('%4.2f' %r_p1) + "\t" + str('%4.4f' %r_prec1) + "\t" + str('%4.4f' %r_prec2) + "\t" + str('%4.2f' %gen_time) + "\t" + str('%4.2f' %enc_time) + "\t" +  str('%4.2f' %prec_cal_time) + "\t" +str('%4.2f' % (time.time() - start_rational_time)) +"\t" + str(args.sparsity) + "\t" + str(args.coherent) + "\t" +str(args.max_epochs) +"\t"+str(args.cur_epoch)
-            data = str('%.5f' % test_accuracy) + "\t" + str('%4.2f' %test_p1) + "\t" + str('%4.4f' %gtime) + "\t" + str('%4.4f' %etime) + "\t" +str('%4.4f' %ttime)\
-            + "\t" + str('%.10f' %args.sparsity) + "\t" + str('%.10f' %args.coherent)
+            data = str('%.5f' % r_mse) + "\t" + str('%4.2f' %r_p1) + "\t" + str('%4.4f' %r_prec1) + "\t" + str('%4.4f' %r_prec2) \
+            +"\t"+str(recall)+"\t"+str(actual_recall)+"\t"+str(recall*r_prec1)+"\t" + str('%4.2f' %gen_time) + "\t" + str('%4.2f' %enc_time) \
+            + "\t" +  str('%4.2f' %prec_cal_time) + "\t" +str('%4.2f' % (time.time() - start_rational_time)) +"\t" + str(args.sparsity) \
+            + "\t" + str(args.coherent) + "\t" +str(args.max_epochs) #+"\t"+str(args.cur_epoch) + '\t' + args.gen_type
+     
             
             with open(args.graph_data_path, 'a') as g_f:
                 print 'writning to file: ', data

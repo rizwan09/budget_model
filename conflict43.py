@@ -23,7 +23,7 @@ from extended_layers import ExtRCNN, ExtLSTM, ZLayer, LZLayer
 def save_z(path, bz, masks):
 
     # append file suffix
-    path = '../ROTTEN_TOMATOES/JUST_OUTPUT_LAYER/Z/'+path
+    path = '../IMDB/JUST_OUTPUT_LAYER_old/Z/'+path
     if not path.endswith(".pkl.gz"):
         if path.endswith(".pkl"):
             path += ".gz"
@@ -41,7 +41,7 @@ def save_z(path, bz, masks):
 def load_z(path):
 
     # append file suffix
-    path = '../ROTTEN_TOMATOES/JUST_OUTPUT_LAYER/Z/'+path
+    path = '../ROTTEN_TOMATOES/JUST_OUTPUT_LAYER_old/Z/'+path
     if not path.endswith(".pkl.gz"):
         if path.endswith(".pkl"):
             path += ".gz"
@@ -938,35 +938,35 @@ def main():
     max_len = args.max_len
     
 
-    if args.train == 'rotten_tomatoes':
-        train_x, train_y = myio.read_annotations(args.rotten_tomatoes+'train.txt', is_movie = True)
+    if args.train == 'imdb':
+        train_x, train_y = myio.read_annotations(args.imdb+'train.txt', is_movie = True)
         # print 'train size: ',  len(train_x), train_x[0], train_y[1]
         if args.debug :
             len_ = len(train_x)*args.debug
             len_ = int(len_)
             train_x = train_x[:len_]
             train_y = train_y[:len_]
-        # print 'train in size: ',  len(train_x)
+        print 'train in size: ',  len(train_x)
         # print 'train size: ',  len(train_x) , train_x[1:10], train_y[1:10],len(train_x[1])
-        train_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in train_x ]
+        train_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in train_x ]
         
-        dev_x, dev_y = myio.read_annotations(args.rotten_tomatoes+'dev.txt', is_movie = True)
+        dev_x, dev_y = myio.read_annotations(args.imdb+'dev.txt', is_movie = True)
         if args.debug :
             len_ = len(dev_x)*args.debug
             len_ = int(len_)
             dev_x = dev_x[:len_]
             dev_y = dev_y[:len_]
         print 'dev in size: ',  len(dev_x)
-        dev_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in dev_x ]
+        dev_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in dev_x ]
 
-        test_x, test_y = myio.read_annotations(args.rotten_tomatoes+'test.txt', is_movie = True)
+        test_x, test_y = myio.read_annotations(args.imdb+'test.txt', is_movie = True)
         if args.debug :
             len_ = len(test_x)*args.debug
             len_ = int(len_)
             test_x = test_x[:len_]
             test_y = test_y[:len_]
         print 'test size: ',  len(test_x)
-        test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
+        test_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in test_x ]
    
         
 
@@ -975,7 +975,7 @@ def main():
 
         rationale_data = myio.read_rationales(args.load_rationale)
         for x in rationale_data:
-            x["xids"] = embedding_layer.map_to_ids(x["x"], is_rt=True)
+            x["xids"] = embedding_layer.map_to_ids(x["x"])
 
 
     #print 'in main: ', args.seed
@@ -1015,9 +1015,6 @@ def main():
                     nclasses = -1
                 )
         model.load_model2(args.load_model,args.load_gen_model, seed = args.seed, select_all = args.select_all)
-        # model.load_model(args.load_model, seed = args.seed, select_all = args.select_all, load_emb_only=0)
-        # say("model enc loaded successfully.\n")
-        say(" both model loaded successfully by load_model2 func.\n")
 
         sample_generator = theano.function(
                 inputs = [ model.x ],
@@ -1055,14 +1052,14 @@ def main():
         # batching data
         padding_id = embedding_layer.vocab_map["<padding>"]
 
-        test_x, test_y = myio.read_annotations(args.rotten_tomatoes+'test.txt', is_movie = True)
+        test_x, test_y = myio.read_annotations(args.imdb+'test.txt', is_movie = True)
         if args.debug :
             len_ = len(test_x)*args.debug
             len_ = int(len_)
             test_x = test_x[:len_]
             test_y = test_y[:len_]
         print 'test size: ',  len(test_x)
-        test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
+        test_x = [ embedding_layer.map_to_ids(x)[:max_len] for x in test_x ]
    
         
         test = (test_x, test_y)
@@ -1093,15 +1090,14 @@ def main():
             etime,
             ttime
         ))
-
-
             # data = str('%.5f' % r_mse) + "\t" + str('%4.2f' %r_p1) + "\t" + str('%4.4f' %r_prec1) + "\t" + str('%4.4f' %r_prec2) + "\t" + str('%4.2f' %gen_time) + "\t" + str('%4.2f' %enc_time) + "\t" +  str('%4.2f' %prec_cal_time) + "\t" +str('%4.2f' % (time.time() - start_rational_time)) +"\t" + str(args.sparsity) + "\t" + str(args.coherent) + "\t" +str(args.max_epochs) +"\t"+str(args.cur_epoch)
-            data = str('%.5f' % test_accuracy) + "\t" + str('%4.2f' %test_p1) + "\t" + str('%4.4f' %gtime) + "\t" + str('%4.4f' %etime) + "\t" +str('%4.4f' %ttime)\
+            data = str('%.5f' % test_accuracy) + "\t" + str('%4.2f' %test_p1) + "\t" + str('%4.4f' %gtime) + "\t" + str('%4.4f' %etime) + "\t" +str('%4.4f' %ttime) \
             + "\t" + str('%.10f' %args.sparsity) + "\t" + str('%.10f' %args.coherent)
             
             with open(args.graph_data_path, 'a') as g_f:
                 print 'writning to file: ', data
                 g_f.write(data+"\n")
+
 
 
 

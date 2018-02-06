@@ -7,7 +7,7 @@ lamda_2 = [0]
 
 
 
-dropout = [ 0.2]
+dropout = [ 0.1]
 # dp = 0.1
 trained_max_epochs = 0
 load_emb_only = 1
@@ -21,11 +21,11 @@ covered_percentage = []
 graph_data_file = '../graph_data/conflict6_annotations0.1to0.9.txt'
 open(graph_data_file, 'w')
 
-batch = 1000
+batch = 450
 
 
 
-_type = '../ROTTEN_TOMATOES/RCNN_RCNN/CONFLICT38/'
+_type = '../IMDB/RCNN_RCNN_old/CONFLICT42/'
 f = 0
 
 union = 'union_words_'
@@ -35,7 +35,7 @@ num_data = 0
 for dp in dropout:
         l_1 = 0
         l_2 = 0
-        for lr in [0.009, 0.01]:#[ 0.0005, 0.005, 0.0001]:
+        for lr in [ 0.0001]:#[ 0.0005, 0.005, 0.0001]:
             
             model_file = 'union_words_model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
             # load_model_file = _type+'MODELS/'+model_file + str(trained_max_epochs)
@@ -48,7 +48,7 @@ for dp in dropout:
             #   assert load_model_file != ''
 
 
-            run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python conflict38.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --train rotten_tomatoes --dev rotten_tomatoes --test rotten_tomatoes  --embedding glove.6B.300d_w_header.txt' +\
+            run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python conflict42.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --train imdb --dev imdb --test imdb  --embedding glove.6B.300d_w_header.txt' +\
                 ' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) +' --sparsity '+str(l_1)+ ' --coherent ' + str(l_2) \
                 +' --batch '+ str(batch) 
             

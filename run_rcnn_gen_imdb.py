@@ -69,7 +69,7 @@ for l_1 in lamda_1:
 			
 			#run_command = 'python generator_fix.py --embedding word_vec.gz --load_rationale annotations.json --dump '+output_file+' --select_all ' +str(select_all)+ ' --aspect ' +str(aspect) +' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --load_model ' + 'model_new_generators/'+model_file #+ ' --graph_data_path '+ graph_data_file
 			
-			run_command+= ' >> '+ _type+'RCNN_RCNN/'+union+model_file + '.txt' 	
+			# run_command+= ' >> '+ _type+'RCNN_RCNN/'+union+model_file + '.txt' 	
 			print run_command
 			os.system(run_command)
 			print '\n\n\n'

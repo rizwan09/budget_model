@@ -25,7 +25,7 @@ open(graph_data_file, 'w')
 
 types = ['RCNN_RCNN']#,'JUST_OUTPUT_LAYER']#,'LINEAR_RCNN','AVG_LINEAR']
 
-_type = '../IMDB/'
+_type = '../IMDB/LSTM'
 f = 0
 
 union = 'union_'

@@ -89,6 +89,11 @@ def load_arguments():
             default = "tanh",
             help = "type of activatioin function"
         )
+    argparser.add_argument("--amazon",
+            type = str,
+            default = "AMAZON",
+            help = "amazon data path"
+        )
     argparser.add_argument("-d", "--hidden_dimension",
             type = int,
             default = 200,
