@@ -93,7 +93,7 @@ conflict 40, 41: Save generator outputs on imdb data
 
 conflict42: train an enc on the union of word selected by diefferent generators loaded from the saved ouputs from conflcit 40, 41.
 
-run_conflict43: load union words enc and just out put / may be rcnn as well to record performances.
+run_conflict43: load union words enc and just out put / may be rcnn as well to record performances on imdb.
 
 conflict44: load amazon data train rcnn_rcnn (gen enc ful enc)
 
