@@ -65,6 +65,9 @@ run_conflict26: load union and original full imdb encoder and (with no generator
 
 run_conflict_28: load union and original full imdb encoder (conflict23) and (with no generator or with loading defferent geneartor like rcnn of tao lei (rcnn_gen_imdb.py), just output layer (just_output_layer_imdb.py) unlike run_conflict26, run the experimens to collect/record result. similar to run_conflict10 and run_conflict25.
 
+run_conflict_28_lstm: Everything is ame as run_conflict_28 except the encoder is LSTM here
+
+
 parse_result_n_parameter: parse rt outputfiles (jointly trained rcnn, just output layer gen + rcnn enc, initialaized with ori full rcnn enc) and collect/record the accuracies/performance.
 
 conflict29: Encoder training based on the union of different generator outputs on the sentiment analysis data
@@ -90,7 +93,7 @@ conflict 40, 41: Save generator outputs on imdb data
 
 conflict42: train an enc on the union of word selected by diefferent generators loaded from the saved ouputs from conflcit 40, 41.
 
-run_conflict43: load union words enc and just out put / may be rcnn as well to record performances.
+run_conflict43: load union words enc and just out put / may be rcnn as well to record performances on imdb.
 
 conflict44: load amazon data train rcnn_rcnn (gen enc ful enc)
 
