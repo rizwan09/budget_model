@@ -97,4 +97,5 @@ run_conflict43: load union words enc and just out put / may be rcnn as well to r
 
 conflict44: load amazon data train rcnn_rcnn (gen enc ful enc)
 
+conflict45: load imdb.p from Adams.
 
