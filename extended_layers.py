@@ -86,6 +86,28 @@ class ExtLSTM(LSTM):
         else:
             return h[:,self.n_out*self.order:]
 
+    def forward_no_z(self, x_t, hc_tm1):
+        hc_t = super(ExtLSTM, self).forward(x_t, hc_tm1)
+        return hc_t
+
+    def forward_all_no_z(self, x, h0=None, return_c=False):
+        if h0 is None:
+            if x.ndim > 1:
+                h0 = T.zeros((x.shape[1], self.n_out*(self.order+1)), dtype=theano.config.floatX)
+            else:
+                h0 = T.zeros((self.n_out*(self.order+1),), dtype=theano.config.floatX)
+        h, _ = theano.scan(
+                    fn = self.forward_no_z,
+                    sequences = [ x],
+                    outputs_info = [ h0 ]
+                )
+        if return_c:
+            return h
+        elif x.ndim > 1:
+            return h[:,:,self.n_out*self.order:]
+        else:
+            return h[:,self.n_out*self.order:]
+
     def copy_params(self, from_obj):
         self.internal_layers = from_obj.internal_layers
 

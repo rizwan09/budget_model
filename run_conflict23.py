@@ -9,7 +9,7 @@ lamda_2 = [2]
 
 
 
-dropout = [0.1]#[ 0.1, 0.08, 0.05]
+dropout = [0.05]#[ 0.1, 0.08, 0.05]
 # dp = 0.1
 trained_max_epochs = 0
 load_emb_only = 1
@@ -31,13 +31,13 @@ f = 0
 union = 'union_'
 union = ''
 num_data = 0
-
+batch_size=50
 for d in [200]:
 	t = types[0]
 	for dp in dropout:
 		l_1 = 0
 		l_2 = 0
-		for lr in [ 0.001, 0.0001]:
+		for lr in [ 0.0009]:
 			# batch_size = 50#[ 0.0005, 0.005, 0.0001]:
 			
 			# load_model_file = _type+'MODELS/'+model_file + str(trained_max_epochs)
@@ -47,20 +47,20 @@ for d in [200]:
 				
 			# else:
 			# 	assert load_model_file != ''
-			d2 = 128
+			# d2 = 128
 			for l2_reg in [1e-6]:
-				l = 'rcnn'
+				l = 'lstm'
 				# model_file = 'model_'+l+'_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 				model_file = 'model_'+l+'_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 				
 				run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python conflict23.py --layer '+l+' --sparsity '+str(l_1)+' --coherent '+str(l_2)+'  --train rotten_tomatoes --dev rotten_tomatoes --test rotten_tomatoes --max_epochs '+ str(max_epochs) +' --embedding glove.6B.300d_w_header.txt' +\
-					' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) +' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) #+' --load_gen_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) #+ ' --save_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data)
+					' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --batch '+str(batch_size)+' --select_all ' +str(select_all) +' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) #+' --load_gen_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) #+ ' --save_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data)
 				
-				run_command+= ' >> '+_type+'MODELS/'+union+ model_file +'.txt'
+				# run_command+= ' >> '+_type+'MODELS/'+union+ model_file +'.txt'
 				print run_command 
 				os.system(run_command)
 				print '\n\n\n'
-				# exit()
+				exit()
 
 
 

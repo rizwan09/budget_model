@@ -1081,6 +1081,7 @@ def main():
                 test_x = test_x[:len_]
                 test_y = test_y[:len_]
             print 'test size: ',  len(test_x)
+            test_x_words = test_x
             test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
             padding_id = embedding_layer.vocab_map["<padding>"]
             test_batches_x, test_batches_y = myio.create_batches(test_x, test_y, args.batch, padding_id)

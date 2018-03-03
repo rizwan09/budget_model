@@ -88,7 +88,7 @@ covered_percentage = []
 # graph_data_file = '../graph_data/full_enc_ori_just_output_layer.txt'
 # open(graph_data_file, 'w')
 
-types = ['RCNN_RCNN', 'JUST_OUTPUT_LAYER']
+types = ['JUST_OUTPUT_LAYER', 'RCNN']
 
 _type = '../IMDB/'
 f = 0
@@ -105,7 +105,7 @@ batch_size  =256
 l2_reg  =1e-6
 l='rcnn'
 for t in types:
-	graph_data_file = '../graph_data/Sen_dummy_'+union+t+'.txt'
+	graph_data_file = '../graph_data/2Sen_dummy_'+union+t+'.txt'
 	open(graph_data_file, 'w')
 
 	for l_1 in lamda_1:
@@ -115,7 +115,7 @@ for t in types:
 			for dp in dropout:
 				
 				for lr in [0.001]:#[ 0.0005, 0.005, 0.0001]:
-					for select_all in [-1]:#[0.1,0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
+					for select_all in [1]:#[0.1,0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
 						if(t=="RCNN_RCNN"): 
 							dp = 0.1
 							path = _type+'RCNN_RCNN/MODELS/'+union+'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'

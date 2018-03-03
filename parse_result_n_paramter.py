@@ -2,15 +2,19 @@ import os
 # d = 'ROTTEN_TOMATOES'
 d= 'IMDB'
 union = 'union_'
-# union=''
+union=''
+l='dummy_lstm_'
 
-
-types = ['JUST_OUTPUT_LAYER_old','RCNN_RCNN_old']
+# types = ['JUST_OUTPUT_LAYER_old','RCNN_RCNN_old']
+types = ['JUST_OUTPUT_LAYER','rcnn']
+# types = ['RCNN_RCNN_old']
 for t in types:
 	for union in ['union_','']:
 	# for union in ['']:
-		mydir = '/net/if1/mp5eb/budget_model/'+d+"/"+t
-		outfile = '../graph_data/'+d+'_full_enc_'+t+"_"+union+'result.txt'
+		mydir = '/net/if1/mp5eb/budget_model/'+d+"/"+t/
+		# mydir = '/net/if1/mp5eb/budget_model/'+d+"/LSTM/"+t
+
+		outfile = '../graph_data/'+d+'_'+l+'_enc_'+t+"_"+union+'result2.txt'
 
 		with open (outfile, 'w') as outf:
 			for file in os.listdir(mydir):
@@ -20,10 +24,12 @@ for t in types:
 					if union == '' and file.startswith( 'union' ):
 						# print file, "\n ", t
 						continue
-					elif union == 'union_' and file.startswith( 'model' ):
+					elif union == 'union_' and (file.startswith( 'model' )==True or file.startswith( 'union_word' )==True) :
 						# print file, "\n ", t
 						continue
-					print file, "\n ", t
+					elif union == 'union_word' and file.startswith( 'union_word' )==False:
+						continue
+					# print file, "\n ", t
 					with open (os.path.join(mydir, file), 'r') as f:
 						l1 = -1
 						l2=-1
@@ -80,7 +86,7 @@ for t in types:
 									# is_best = 0
 									if(float(s)>0.30): 
 										# if (float(ac)>0.871): ac = 0.871
-										print str(ac)+"\t"+str(s)+"\t"+str(g)+"\t"+str(e)+"\t"+str(tt)+"\t"+str(l1)+"\t"+str(l2)+"\n"
+										# print str(ac)+"\t"+str(s)+"\t"+str(g)+"\t"+str(e)+"\t"+str(tt)+"\t"+str(l1)+"\t"+str(l2)+"\n"
 						
 										outf.write(str(ac)+"\t"+str(s)+"\t"+str(g)+"\t"+str(e)+"\t"+str(tt)+"\t"+str(l1)+"\t"+str(l2)+"\n")
 						

@@ -41,7 +41,7 @@ num_data = 0
 
 for t in types:
 
-	graph_data_file = '../graph_data/rt_full_enc_'+union+t+'_gen.txt'
+	graph_data_file = '../graph_data/rt_full_enc_'+union+t+'_gen_new.txt'
 	open(graph_data_file, 'w')
 
 	for l_1 in lamda_1:
@@ -50,7 +50,7 @@ for t in types:
 			for dp in dropout:
 				
 				for lr in [0.0005]:#[ 0.0005, 0.005, 0.0001]:
-					for select_all in [-1]:#[0.1,0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
+					for select_all in [1]:#[0.1,0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
 
 						if union!='':
 							dp = 0.3

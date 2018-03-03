@@ -9,7 +9,7 @@ lamda_2 = [2]
 
 
 
-dropout = [ 0.2, 0.3]
+dropout = [ 0.05]
 # dp = 0.1
 trained_max_epochs = 0
 load_emb_only = 1
@@ -25,19 +25,20 @@ open(graph_data_file, 'w')
 
 types = ['JUST_OUTPUT_LAYER', 'LINEAR_RCNN', 'RCNN_RCNN', 'just_output_layer', 'linear_rcnn']
 
-_type = '../RCNN_RCNN/CONFLICT8/'
+# _type = '../RCNN_RCNN/CONFLICT8/'
+_type = '../LSTM/CONFLICT8/'
 f = 0
-
+l2 = 1e-4
 union = 'union_'
-union = ''
-num_data = 0
-
+# union = ''
+num_data = 05
+l = 'lstm'
 for dp in dropout:
 		l_1 = 0
 		l_2 = 0
-		for lr in [0.01, 0.009]:#[ 0.0005, 0.005, 0.0001]:
+		for lr in [0.0007]:#[ 0.0005, 0.005, 0.0001]:
 			
-			model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+			model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'_l2_reg_'+str(l2)+'.txt.pkl.gz' 
 			# load_model_file = _type+'MODELS/'+model_file + str(trained_max_epochs)
 			load_model_file  =''
 			if num_data>0:
@@ -49,9 +50,9 @@ for dp in dropout:
 
 
 			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python conflict8.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --embedding ../word_vec.gz --train ../reviews.aspect1.train.txt.gz --dev ../reviews.aspect1.heldout.txt.gz --load_rationale ../annotations.json --aspect ' + str(aspect) + \
-				' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) #+ ' --load_model '+load_model_file
+				' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)  +' --save_model ' + _type +'MODELS/'+union+model_file+' --num_data '+str(num_data) +' --layer '+l  + ' --l2_reg '+str(l2)
 			
-			run_command+= ' >> '+_type+union+ model_file +'.txt'
+			# run_command+= ' >> '+_type+union+ model_file +'.txt'
 			print run_command 
 			os.system(run_command)
 			print '\n\n\n'

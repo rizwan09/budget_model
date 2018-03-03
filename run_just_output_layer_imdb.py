@@ -5,8 +5,12 @@ lamda_1 = lamda_1[::-1]
 
 # lamda_1 = [0.001, 0.0001, -1, -2, -3]
 
-lamda_2 = [-4, -5, -3, -2, -1, -.5, -0.1, 0, 0.25, 0.75, 0.85, 0.95, -0.25, -0.75, -0.85, -0.95]#[  0.5]
-# lamda_2 = [0,1,-2,0.5, -3]
+# lamda_2 = [-4, -5, -3, -2, -1, -.5, -0.1, 0, 0.25, 0.75, 0.85, 0.95, -0.25, -0.75, -0.85, -0.95]#[  0.5]
+
+lamda_2 = [0, 0.25, 0.75, 0.85, 0.95, -0.25, -0.75, -0.85, -0.95]
+lamda_2 = [0.01, 0.05, 0.5, 0.1, -4, -5,  -1, -.5, -0.1]
+lamda_2 = [1, 0.5, 0.75, -2.75, -3, 5.5, -6, -6.5] #, 0.1,  0.2]
+
 
 
 
@@ -28,38 +32,44 @@ output_file = 'rough2_new_gen_outputs_'+"linear_rcnn_0.01"+'.json'
 covered_percentage = []
 graph_data_file = '../graph_data/data_vs_lamda_table_dummy.txt'
 open(graph_data_file, 'w')
-union='union_'
+union='union_words_'
 # union=''
 
 
 # 55% for lr 0.01, lr_1 = 0.001, lr_2 = 0.01, best 18% lr1= 0.005, l2=0.01
 
-_type = '../IMDB/'
+_type = '../IMDB/RCNN_RCNN_old/'
 f = 0
 for l_1 in lamda_1:
 	# f+=1
 	# if(f>4):exit()
 	for l_2 in lamda_2:
-		for lr in [ 0.001]:
+		for lr in [ 0.0005]:
 			l='rcnn'
 			l2_reg=1e-6
-			
-			### as we experiment with lstm for rotten tomatoes
 			load_model_file = 'model_'+l+'_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+			if union=='union_words_':
+				assert dp==0.1
+				assert lr==0.0005
+				load_model_file = 'model_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(1)+'.txt.pkl.gz'
+
+
+
+			### as we experiment with lstm for rotten tomatoes
 			model_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python just_output_layer_imdb.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --train imdb --dev imdb --test imdb  --embedding glove/glove.6B.300d_w_header.txt' + \
-				' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "JUST_OUTPUT_LAYER/MODELS/"+union+model_file \
-				+ ' --load_model ' + _type +'MODELS/'+union+load_model_file + ' --load_gen_model ' + _type +'MODELS/'+union+load_model_file
+			run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python just_output_layer_imdb.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +'  --train imdb --dev imdb --test imdb  --embedding glove.6B.300d_w_header.txt' + \
+				' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+' --save_model ' +_type+ "UNION_WORDS/MODELS/"+union+model_file \
+				+ ' --load_model ' + _type +'CONFLICT42/MODELS/'+union+load_model_file #+ ' --load_gen_model ' + _type +'MODELS/'+union+load_model_file
 			
 			#run_command = 'python generator_fix.py --embedding word_vec.gz --load_rationale annotations.json --dump '+output_file+' --select_all ' +str(select_all)+ ' --aspect ' +str(aspect) +' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --load_model ' + 'model_new_generators/'+model_file #+ ' --graph_data_path '+ graph_data_file
 			
-			run_command+= ' >> '+ _type+'JUST_OUTPUT_LAYER/'+union+model_file + '.txt' 	
+			run_command+= ' >> '+ _type+'UNION_WORDS/'+union+model_file + '.txt' 	
 			print run_command
 			os.system(run_command)
 			print '\n\n\n'
 			# exit()
 
-
+# comment exit(), give bck --train imdb --dev imdb, change select_all, lr, dp, union='', _type, 'save_model', '--load_model'
 
 ### [0.0002, 0.0003, 0.0004] nlp 
 

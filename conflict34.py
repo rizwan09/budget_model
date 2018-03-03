@@ -293,8 +293,12 @@ class Model(object):
                 path += ".gz"
             else: path += ".pkl.gz"
 
-        with gzip.open(path, "rb") as fin:
-            eparams, gparams, nclasses, args  = pickle.load(fin)
+        if 'union_word' in path:
+            with gzip.open(path, "rb") as fin:
+                eparams, nclasses, args  = pickle.load(fin)
+        else:
+            with gzip.open(path, "rb") as fin:
+                eparams, gparams, nclasses, args  = pickle.load(fin)
 
         if seed is not None: self.args.seed = seed
         if select_all is not None: self.args.select_all = select_all
@@ -733,6 +737,8 @@ def main():
         for x in rationale_data:
             x["xids"] = embedding_layer.map_to_ids(x["x"])
 
+    print 'vocab: ', len(embedding_layer.vocab_map)
+
     #print 'in main: ', args.seed
     if args.train:
         model = Model(
@@ -773,43 +779,45 @@ def main():
         model.load_model(args.load_model, seed = args.seed, select_all = args.select_all,  load_gen_only = args.load_gen_only)
         say("model loaded successfully.\n")
 
-        sample_generator = theano.function(
-                inputs = [ model.x ],
-                outputs = model.z,
-                # updates = model.generator.sample_updates
-            )
+        
+
+        # sample_generator = theano.function(
+        #         inputs = [ model.x ],
+        #         outputs = model.z,
+        #         # updates = model.generator.sample_updates
+        #     )
         sample_encoder = theano.function(
-                inputs = [ model.x, model.y, model.z],
+                inputs = [ model.x, model.y],
                 outputs = [ model.encoder.obj, model.encoder.loss,
                                 model.encoder.pred_diff],
                 # updates = model.generator.sample_updates
             )
         # compile an evaluation function
-        eval_func = theano.function(
-                inputs = [ model.x, model.y ],
-                outputs = [ model.z, model.encoder.obj, model.encoder.loss,
-                                model.encoder.pred_diff ],
-                # updates = model.generator.sample_updates
-            )
-        debug_func_enc = theano.function(
-                inputs = [ model.x, model.y ],
-                outputs = [ model.z, model.encoder.obj, model.encoder.loss,
-                                model.encoder.pred_diff ] ,
-                # updates = model.generator.sample_updates
-            )
-        debug_func_gen = theano.function(
-                inputs = [ model.x, model.y ],
-                outputs = [ model.z , model.encoder.obj, model.encoder.loss,
-                                model.encoder.pred_diff],
-                # updates = model.generator.sample_updates
-            )
+        # eval_func = theano.function(
+        #         inputs = [ model.x, model.y ],
+        #         outputs = [ model.z, model.encoder.obj, model.encoder.loss,
+        #                         model.encoder.pred_diff ],
+        #         # updates = model.generator.sample_updates
+        #     )
+        # debug_func_enc = theano.function(
+        #         inputs = [ model.x, model.y ],
+        #         outputs = [ model.z, model.encoder.obj, model.encoder.loss,
+        #                         model.encoder.pred_diff ] ,
+        #         # updates = model.generator.sample_updates
+        #     )
+        # debug_func_gen = theano.function(
+        #         inputs = [ model.x, model.y ],
+        #         outputs = [ model.z , model.encoder.obj, model.encoder.loss,
+        #                         model.encoder.pred_diff],
+        #         # updates = model.generator.sample_updates
+        #     )
 
         # compile a predictor function
-        pred_func = theano.function(
-                inputs = [ model.x ],
-                outputs = [ model.z, model.encoder.preds ],
-                # updates = model.generator.sample_updates
-            )
+        # pred_func = theano.function(
+        #         inputs = [ model.x ],
+        #         outputs = [ model.z, model.encoder.preds ],
+        #         # updates = model.generator.sample_updates
+        #     )
 
         # batching data
         padding_id = embedding_layer.vocab_map["<padding>"]
@@ -830,7 +838,7 @@ def main():
             start_rational_time = time.time()
             r_mse, r_p1, r_prec1, r_prec2, gen_time, enc_time, prec_cal_time, recall, actual_recall = model.evaluate_rationale(
                     rationale_data, valid_batches_x,
-                    valid_batches_y, sample_generator, sample_encoder, eval_func)
+                    valid_batches_y, sample_encoder)
                     #valid_batches_y, eval_func)
 
             #model.dropout.set_value(dropout_prob)

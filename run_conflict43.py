@@ -1,12 +1,12 @@
 import os
 
-lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004, 0.00045, 0.0005, 0.00055, 0.0006, 0.00065, 0.0007, 0.00075, 0.0008, 0.00085, 0.0009, 0.001, 0.001, 0.0001, -1, -2, -3]
+lamda_1 = [ 0.0002, 0.00025, 0.0003, 0.00035, 0.0004, 0.00045, 0.0005, 0.00055, 0.0006, 0.00065, 0.0007, 0.00075, 0.0008, 0.00085, 0.0009, 0.001, 0.0001, -1, -2, -3, -4]
 lamda_1 = lamda_1[::-1]
 
-lamda_1 = [0.001]
 
-# lamda_2 = [-4, -5, -3, -2, -1, -.5, -0.1, 0, 0.25, 0.75, 0.85, 0.95, -0.25, -0.75, -0.85, -0.95]#[  0.5]
-lamda_2 = [0.95]
+
+lamda_2 = [-4, -5, -3, -2, -1, -.5, -0.1, 0, 0.25, 0.5, 0.75, 0.85, 0.95, -0.25, -0.75, -0.85, -0.95, -2.75, -2, -1, 1, 2]#[  0.5]
+
 
 
 # lamda_1 = [0.08, 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01, 0.009,0.008,0.007, 0.006, 0.005, 0.004, 0.003, 0.0009]
@@ -35,20 +35,24 @@ debug = 1
 select_all = -1
 output_file = 'rough2_new_gen_outputs_'+"linear_rcnn_0.01"+'.json'
 covered_percentage = []
-
-union=''
+union='union_words_'
+# union=''
 
 types = ['RCNN_RCNN', 'JUST_OUTPUT_LAYER']
 types = [ 'JUST_OUTPUT_LAYER', 'RCNN_RCNN']
 types = [ 'RCNN_RCNN']
 types = [ 'JUST_OUTPUT_LAYER']
 
+
+l='lstm'
+l='rcnn'
 # 55% for lr 0.01, lr_1 = 0.001, lr_2 = 0.01, best 18% lr1= 0.005, l2=0.01
 
 _type = '../IMDB/'
 f = 0
 for t in types:
-	graph_data_file = '../graph_data/IMDB_full_enc_union_words_'+t+'.txt'
+	# graph_data_file = '../graph_data/IMDB_full_enc_union_words_'+t+'.txt'
+	graph_data_file = '../graph_data/IMDB_union_words_'+l+'_enc_union_words_'+t+'.txt'
 	open(graph_data_file, 'w')
 
 	for l_1 in lamda_1:
@@ -59,7 +63,7 @@ for t in types:
 
 
 			for lr in [ 0.0005]:
-				l='rcnn'
+				
 				l2_reg=1e-6
 				d=200
 				batch_size=50
@@ -67,13 +71,13 @@ for t in types:
 				### as we experiment with lstm for rotten tomatoes
 				gen_file = 'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(0.1)+"_lr_"+str(0.001)+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 				# enc_file = 'union_words_model_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(1)+'.txt.pkl.gz'
-				load_model_file = 'model_'+l+'_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+				load_model_file = 'union_words_'+l+'_model_sparsity_0_coherent_0_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 				enc_file = load_model_file
 
-
-				run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python just_output_layer_imdb.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --test imdb  --embedding glove.6B.300d_w_header.txt' + \
+				if os.path.exists(_type +'JUST_OUTPUT_LAYER_old/MODELS/'+gen_file)==False: continue
+				run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python just_output_layer_imdb.py --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --test imdb  --embedding glove.6B.300d_w_header.txt' + \
 					' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)+ \
-					 ' --load_model ' +_type +'MODELS/'+union+enc_file + ' --load_gen_model ' + _type +'JUST_OUTPUT_LAYER_old/MODELS/'+union+gen_file+' --graph_data_path '+ graph_data_file 
+					 ' --load_model ' +_type +'RCNN_RCNN_old/CONFLICT42/MODELS/'+enc_file + ' --load_gen_model ' + _type +'JUST_OUTPUT_LAYER_old/MODELS/'+gen_file+' --graph_data_path '+ graph_data_file +' --layer '+l
 				
 				#run_command = 'python generator_fix.py --embedding word_vec.gz --load_rationale annotations.json --dump '+output_file+' --select_all ' +str(select_all)+ ' --aspect ' +str(aspect) +' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --load_model ' + 'model_new_generators/'+model_file #+ ' --graph_data_path '+ graph_data_file
 				

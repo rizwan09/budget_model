@@ -7,11 +7,11 @@ lamda_2 = [0]
 
 
 
-dropout = [ 0.2]
+dropout = [ 0.1]
 # dp = 0.1
 trained_max_epochs = 0
 load_emb_only = 1
-max_epochs = 1
+max_epochs = 100
 # learning = 'sgd'
 aspect = 1
 debug = 1
@@ -27,7 +27,7 @@ batch = 1000
 
 _type = '../ROTTEN_TOMATOES/RCNN_RCNN/CONFLICT38/'
 f = 0
-
+l='rcnn'
 union = 'union_words_'
 union = ''
 num_data = 0
@@ -35,9 +35,9 @@ num_data = 0
 for dp in dropout:
         l_1 = 0
         l_2 = 0
-        for lr in [0.009, 0.01]:#[ 0.0005, 0.005, 0.0001]:
+        for lr in [0.0009z]:#[ 0.0005, 0.005, 0.0001]:
             
-            model_file = 'union_words_model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+            model_file = 'union_words_'+l+'_model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
             # load_model_file = _type+'MODELS/'+model_file + str(trained_max_epochs)
             load_model_file  =''
             if num_data>0:

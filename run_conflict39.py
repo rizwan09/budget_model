@@ -73,7 +73,7 @@ for t in types:
 				print run_command
 				os.system(run_command)
 				print '\n\n\n'
-				# exit()
+				exit()
 
 
 

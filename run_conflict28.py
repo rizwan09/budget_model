@@ -25,7 +25,7 @@ covered_percentage = []
 # graph_data_file = '../graph_data/full_enc_ori_just_output_layer.txt'
 # open(graph_data_file, 'w')
 
-types = ['RCNN_RCNN','JUST_OUTPUT_LAYER']
+types = [ 'JUST_OUTPUT_LAYER','RCNN_RCNN']
 
 _type = '../IMDB/'
 f = 0
@@ -34,15 +34,15 @@ base = '../../Budgeted_attention_model/rcnn/code/rationale/'
 gen_lr = {'JUST_OUTPUT_LAYER': 0.001, 'LINEAR_RCNN': 0.0005 , 'RCNN_RCNN': 0.001, 'AVG_LINEAR': 0.005}
 
 union = 'union_'
-union = ''
-# num_data = 5
+# union = ''
+num_data = 5
 d = 200
 d2 =30
 batch_size  =256
 l2_reg  =1e-6
 l='rcnn'
 for t in types:
-	graph_data_file = '../graph_data/dummy'+union+t+'2.txt'
+	graph_data_file = '../graph_data/dummy_'+union+'rcnn_enc_'+t+'_gen2.txt'
 	open(graph_data_file, 'w')
 
 	for l_1 in lamda_1:
@@ -55,11 +55,12 @@ for t in types:
 					for select_all in [-1]:#[0.1,0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
 						if(t=="RCNN_RCNN"): 
 							dp = 0.1
-							path = _type+'RCNN_RCNN/MODELS/'+union+'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+							path = _type+'RCNN_RCNN_old/MODELS/'+'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+							# path = _type+'RCNN_RCNN_old/MODELS/'+union+'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 						if(t=="JUST_OUTPUT_LAYER"): 
 							dp = 0.1
-							path = _type+'JUST_OUTPUT_LAYER/MODELS/'+union+'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-			
+							path = _type+'JUST_OUTPUT_LAYER_old/MODELS/'+'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
+							# path = _type+'JUST_OUTPUT_LAYER_old/MODELS/'+union+'model_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(gen_lr[t])+'_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
 						if union!='':
 							assert lr == 0.001 ## change this
 							assert dp == 0.1 ## change this
@@ -87,19 +88,23 @@ for t in types:
 						if os.path.exists(path)==False: continue
 						
 
-						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python '+ py_file  +' --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --batch '+str(batch_size)+' -d '+str(d)+' -d2 '+str(d2)+' --layer '+l+' --test imdb  --embedding glove.6B.300d_w_header.txt' + \
+						# run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python '+ py_file  +' --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --batch '+str(batch_size)+' -d '+str(d)+' -d2 '+str(d2)+' --layer '+l+' --test imdb  --embedding glove.6B.300d_w_header.txt' + \
+						# ' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)\
+						# + ' --load_model ' + _type +'MODELS/'+union+load_model_file + ' --load_gen_model '+path +' --graph_data_path '+ graph_data_file + ' --sparsity '+ str(l_1) + ' --coherent ' + str(l_2)\
+						#  + ' --dropout '+ str(dp) + ' --learning_rate '+str(lr)
+			
+						run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python '+ py_file  +' --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --batch '+str(batch_size)+' -d '+str(d)+' -d2 '+str(d2)+' --layer '+l+' --test imdb  --embedding glove.6B.300d_w_header.txt' + \
 						' --dump ' + output_file +' --sparsity ' + str(l_1) +' --coherent ' + str(l_2) + ' --dropout '+ str(dp)+' --debug '+ str(debug) +' --select_all ' +str(select_all) + ' --learning_rate '+str(lr)\
 						+ ' --load_model ' + _type +'MODELS/'+union+load_model_file + ' --load_gen_model '+path +' --graph_data_path '+ graph_data_file + ' --sparsity '+ str(l_1) + ' --coherent ' + str(l_2)\
 						 + ' --dropout '+ str(dp) + ' --learning_rate '+str(lr)
 			
-
 
 						# run_command+= ' >> '+_type+union+ model_file +'.txt'
 						print run_command 
 						os.system(run_command)
 						print '\n\n\n'
 						# exit()
-	# exit()
+	exit()
 
 
 

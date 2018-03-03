@@ -9,7 +9,7 @@ lamda_2 = [2]
 
 
 
-dropout =[ 0.1]
+dropout =[ 0.2]
 # dp = 0.1
 trained_max_epochs = 00
 load_emb_only = 1
@@ -29,44 +29,39 @@ _type = '../IMDB/LSTM'
 f = 0
 
 union = 'union_'
-union = ''
-num_data = 0
+# union = ''
+num_data = 05
+depth =1
+batch_size = 128
 
-for d in [200]:
+for d in [128]:
 	t = types[0]
 	for dp in dropout:
-		l_1 = 0
-		l_2 = 0
-		for batch_size in [50]:#0.001: #in [0.01]:#, 0.05]:#, 0.0009]: 
-			# if batch_size == 50 and dp==0.2: continue
-			for lr in [0.001, 0.0009]:
+			l_1 = 0
+			l_2 = 0
+			for lr in [0.008]:
 			# load_model_file = _type+'MODELS/'+model_file + str(trained_max_epochs)
 				load_model_file  = ''
 				if num_data>0:
 					assert union !=''
-					
-				# else:
-				# 	assert load_model_file != ''
-				d2 = 30
-				for l2_reg in [1e-6]:
-				#l in [ 'lstm']:#,'lstm]:
-					l = 'rcnn'
-					# if dp==0.1 and l=='lstm':continue
-					model_file = 'model_'+l+'_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'_batch_'+str(batch_size)+'.txt.pkl.gz'
-					# model_file = 'model_'+l+'_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'.txt.pkl.gz'
-					
-					run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu1,floatX=float32" python conflict21.py --layer '+l+' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --train imdb --dev imdb --test imdb --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --embedding glove.6B.300d_w_header.txt' +\
-						' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all)  +' --save_model ' + _type+'/MODELS/'+union+model_file+' --num_data '+str(num_data)+' --batch '+str(batch_size) # + ' --load_model '+_type+'MODELS/'+union+model_file
-					
-					# run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python conflict21.py --layer '+l+' -d2 128 --sparsity 0 --coherent 0 --test imdb --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --embedding glove.6B.300d_w_header.txt' +\
-					# 	' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all)+' --learning_rate '+str(lr)  +' --load_model ' + _type+'MODELS_OLD/'+union+model_file # +' --num_data '+str(num_data)+' --l2_reg '+str(l2_reg)  + ' --load_model '+_type+'MODELS/'+union+model_file
-					
+				
+				l = 'lstm'
+				# if dp==0.1 and l=='lstm':continue
+				# model_file = 'model_'+l+'_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'_depth_'+str(depth)+'.txt.pkl.gz'
+				model_file = 'model_'+l+'_sparsity_'+str(l_1)+'_coherent_'+str(l_2)+'_dropout_'+str(dp)+"_lr_"+str(lr)+'_full_trainset_max_epochs_'+str(max_epochs)+'_batch_'+str(batch_size)+'_d_'+str(d)+'.txt.pkl.gz'#+'_depth_'+str(depth)+'.txt.pkl.gz'
+				
+				run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu0,floatX=float32" python conflict21.py --layer '+l+' --sparsity '+str(l_1)+' --coherent '+str(l_2)+' --train imdb --dev imdb --test imdb --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --embedding glove.6B.300d_w_header.txt' +\
+					' --dump ' + output_file + ' --learning_rate '+ str(lr)+ ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all)  +' --save_model ' + _type+'/MODELS/'+union+model_file+' --num_data '+str(num_data)+' --batch '+str(batch_size) +' -d '+str(d) #+ ' --depth '+str(depth)
+				
+				# run_command = ' THEANO_FLAGS="mode=FAST_RUN,device=gpu2,floatX=float32" python conflict21.py --layer '+l+' -d2 128 --sparsity 0 --coherent 0 --test imdb --trained_max_epochs '+str(trained_max_epochs) +' --max_epochs '+ str(max_epochs) +' --embedding glove.6B.300d_w_header.txt' +\
+				# 	' --dump ' + output_file + ' --dropout '+  str(dp) +' --debug '+ str(debug) +' --select_all ' +str(select_all)+' --learning_rate '+str(lr)  +' --load_model ' + _type+'MODELS_OLD/'+union+model_file # +' --num_data '+str(num_data)+' --l2_reg '+str(l2_reg)  + ' --load_model '+_type+'MODELS/'+union+model_file
+				
 
-					run_command+= ' >> '+_type+'MODELS/'+union+ model_file +'.txt'
-					print run_command 
-					os.system(run_command)
-					print '\n\n\n'
-					# exit()
+				# run_command+= ' >> '+_type+'MODELS/'+union+ model_file +'.txt'
+				print run_command 
+				os.system(run_command)
+				print '\n\n\n'
+				exit()
 
 
 

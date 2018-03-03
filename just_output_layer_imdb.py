@@ -338,7 +338,10 @@ class Model(object):
                 path += ".pkl.gz"
 
         with gzip.open(path, "rb") as fin:
-            eparams, gparams, nclasses, args  = pickle.load(fin)
+            if 'union_words_' not in path: 
+                eparams, gparams, nclasses, args  = pickle.load(fin)
+            else:
+                eparams, nclasses, args  = pickle.load(fin)
 
         # construct model/network using saved configuration
         #self.args = args
@@ -367,7 +370,10 @@ class Model(object):
             else: path += ".pkl.gz"
 
         with gzip.open(path, "rb") as fin:
-            eparams, gparams, nclasses, args  = pickle.load(fin)
+            if 'union_words_' not in path: 
+                eparams, gparams, nclasses, args  = pickle.load(fin)
+            else:
+                eparams, nclasses, args  = pickle.load(fin)
 
         # construct model/network using saved configuration
         #self.args = args
@@ -572,7 +578,7 @@ class Model(object):
                 if more:
                     more_counter += 1
                     print('MORE COUNTER: ', more_counter)
-                    if more_counter>15 or lr_e.get_value()<1e-10: 
+                    if more_counter>10 or lr_e.get_value()<1e-10: 
                         print "lr: ", lr_e.get_value(), ' more counter: ', more_counter
                         return
                 if more:

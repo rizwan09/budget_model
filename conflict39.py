@@ -18,7 +18,7 @@ import myio
 import options
 from extended_layers import ExtRCNN, ExtLSTM, ZLayer, LZLayer
 
-
+test_words = []
 
 def save_z(path, bz, masks):
 
@@ -64,6 +64,9 @@ def get_sparse(o_x):
 
 
 def remove_non_selcted(bx, bz, padding_id):
+    global test_words
+    print 'in removal: ', len(test_words), bx.shape, bz.shape
+    exit()
     assert bx.ndim == bz.ndim == 2
     r = (bz * bx).transpose()
     r[r == padding_id] = 0
@@ -768,6 +771,8 @@ class Model(object):
         encode_total_time = 0
         zs = []
         masks = []
+        cnt=0
+        global test_words
         for bx, by in zip(batches_x, batches_y):
             if not sampling:
                 e, d = eval_func(bx, by)
@@ -778,6 +783,11 @@ class Model(object):
                 zs.append(bz)
                 masks.append(mask)
 
+                for z,m in zip(bz.T, mask.T):
+                    z = [ vz for vz,vm in zip(z,m) if vm ]
+                    assert len(z) == len(test_words[cnt])
+                    print len(z), len(test_words[cnt])
+                    cnt+=1
 
 
                 generator_time = time.time() - start_generate_time
@@ -802,6 +812,7 @@ class Model(object):
                 tot_obj += o
                 a= np.mean(correct) 
                 tot_a += a
+                
                 # print p, by, correct, o, 1-o, a
             tot_mse += e
             tot_diff += d
@@ -927,6 +938,7 @@ class Model(object):
 
 
 def main():
+    global test_words
     print args
     set_default_rng_seed(args.seed)
     assert args.embedding, "Pre-trained word embeddings required."
@@ -1062,6 +1074,7 @@ def main():
             test_x = test_x[:len_]
             test_y = test_y[:len_]
         print 'test size: ',  len(test_x)
+        test_words = test_x
         test_x = [ embedding_layer.map_to_ids(x, is_rt = True)[:max_len] for x in test_x ]
    
         
